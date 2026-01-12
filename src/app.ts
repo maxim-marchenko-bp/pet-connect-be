@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { AppDataSource } from "./data-source";
+import userRouter from "./modules/user/user.routes";
+import { errorHandler } from "./common/middleware/error-handler";
 
 dotenv.config();
 const PORT = process.env.PORT || 4000;
@@ -13,11 +15,13 @@ AppDataSource.initialize()
 
 app.use(cors({origin: 'http://localhost:3000', credentials: true}));
 app.use(express.json());
+app.use('/api/users', userRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello, World!');
 });
 
+app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

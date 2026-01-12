@@ -1,10 +1,10 @@
 import { Column, Entity, ManyToMany } from "typeorm";
 import { BaseEntity } from "../../common/entities/base.entity";
 import { PetType } from "./constants/pet-type.enum";
-import { UserEntity } from "../user/user.entity";
+import { User } from "../user/user.entity";
 
 @Entity()
-export class PetEntity extends BaseEntity {
+export class Pet extends BaseEntity {
   @Column()
   name!: string;
 
@@ -17,6 +17,6 @@ export class PetEntity extends BaseEntity {
   @Column()
   age!: number;
 
-  @ManyToMany(() => UserEntity, user => user.pets)
-  users!: UserEntity[];
+  @ManyToMany(() => User, user => user.pets)
+  users!: User[];
 }
