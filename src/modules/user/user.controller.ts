@@ -4,6 +4,7 @@ import { Request, Response } from 'express';
 
 export const addUser = async (req: Request, res: Response) => {
   try {
+    // TODO check if createUserSchema can be removed since validate middleware is used
     const data = createUserSchema.parse(req.body);
     const existingUser = await findUserByEmail(data.email);
     if (existingUser) {
