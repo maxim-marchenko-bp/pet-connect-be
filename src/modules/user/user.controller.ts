@@ -29,25 +29,37 @@ export const updateUserInfo = async (req: Request, res: Response) => {
 };
 
 export const getUserById = async (req: Request, res: Response) => {
-  const userId = +req.params.id;
-  const user = await findUserById(userId);
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
+  try {
+    const userId = +req.params.id;
+    const user = await findUserById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    return res.status(200).send(user);
+  } catch (error) {
+    return res.status(400).send('Unable to get user');
   }
-  return res.status(200).send(user);
 }
 
 export const deleteUserProfileById = async (req: Request, res: Response) => {
-  const userId = +req.params.id;
-  const user = await findUserById(userId);
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
+  try {
+    const userId = +req.params.id;
+    const user = await findUserById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    await deleteUserById(userId);
+    return res.status(204).send(`User with id ${userId} deleted successfully`);
+  } catch (error) {
+    return res.status(400).send('Unable to delete user');
   }
-  await deleteUserById(userId);
-  return res.status(204).send(`User with id ${userId} deleted successfully`);
 };
 
-export const getAllUserProfiles = async (req: Request, res: Response) => {
-  const users = await getAllUsers();
-  return res.status(200).send(users);
+export const getAllUserProfiles = async (_: Request, res: Response) => {
+  try {
+    const users = await getAllUsers();
+    return res.status(200).send(users);
+  } catch (error) {
+    return res.status(400).send('Unable to get users');
+  }
 }
