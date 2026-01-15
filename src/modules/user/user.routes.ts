@@ -5,15 +5,16 @@ import {
   deleteUserProfileById,
   getAllUserProfiles,
   getUserById,
-  registerUser,
+  addUser,
   updateUserInfo
 } from "./user.controller";
+import { authenticate } from "../../common/middleware/auth";
 
 const router = Router();
 
-router.get('/', getAllUserProfiles);
+router.get('/', [authenticate], getAllUserProfiles);
 
-router.post('/', validate(createUserSchema), registerUser);
+router.post('/', validate(createUserSchema), addUser);
 
 router.put('/:id', validate(updateUserSchema), updateUserInfo);
 

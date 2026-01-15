@@ -2,7 +2,7 @@ import { createUser, deleteUserById, findUserByEmail, findUserById, getAllUsers,
 import { createUserSchema } from "./user.schema";
 import { Request, Response } from 'express';
 
-export const registerUser = async (req: Request, res: Response) => {
+export const addUser = async (req: Request, res: Response) => {
   try {
     const data = createUserSchema.parse(req.body);
     const existingUser = await findUserByEmail(data.email);

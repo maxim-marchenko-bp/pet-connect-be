@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { AppDataSource } from "./data-source";
 import userRouter from "./modules/user/user.routes";
+import authRouter from "./modules/auth/auth.routes";
 import { errorHandler } from "./common/middleware/error-handler";
 
 dotenv.config();
@@ -16,6 +17,7 @@ AppDataSource.initialize()
 app.use(cors({origin: 'http://localhost:3000', credentials: true}));
 app.use(express.json());
 app.use('/api/users', userRouter);
+app.use('/api/auth', authRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello, World!');
