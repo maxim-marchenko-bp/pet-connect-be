@@ -5,6 +5,8 @@ import { AppDataSource } from "./data-source";
 import userRouter from "./modules/user/user.routes";
 import authRouter from "./modules/auth/auth.routes";
 import { errorHandler } from "./common/middleware/error-handler";
+import cookieParser from 'cookie-parser';
+import refreshTokenRoutes from "./modules/refresh-token/refresh-token.routes";
 
 dotenv.config();
 const PORT = process.env.PORT || 4000;
@@ -16,8 +18,11 @@ AppDataSource.initialize()
 
 app.use(cors({origin: 'http://localhost:3000', credentials: true}));
 app.use(express.json());
+app.use(cookieParser());
+
 app.use('/api/users', userRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/auth', refreshTokenRoutes);
 
 app.get('/', (req, res) => {
   res.send('Hello, World!');

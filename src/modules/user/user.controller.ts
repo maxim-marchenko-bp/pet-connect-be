@@ -1,17 +1,20 @@
-import { createUser, deleteUserById, findUserByEmail, findUserById, getAllUsers, updateUser } from "./user.service";
-import { createUserSchema } from "./user.schema";
+import { createUser, deleteUserById, findUserByEmailPublic, findUserByIdPublic, getAllUsersPublic, updateUser } from "./user.service";
+import { CreateUserDto } from "./user.schema";
 import { Request, Response } from 'express';
 
-export const addUser = async (req: Request, res: Response) => {
+interface AddUserRequest extends Request {
+  body: CreateUserDto;
+}
+
+export const addUser = async (req: AddUserRequest, res: Response) => {
   try {
-    // TODO check if createUserSchema can be removed since validate middleware is used
-    const data = createUserSchema.parse(req.body);
-    const existingUser = await findUserByEmail(data.email);
+    const userData = req.body;
+    const existingUser = await findUserByEmailPublic(userData.email);
     if (existingUser) {
       return res.status(409).json({ message: "Email already in use" });
     }
 
-    const user = await createUser(data);
+    const user = await createUser(userData);
     return res.status(201).send(user);
   } catch (error) {
     return res.status(400).send('Unable to create user');
@@ -31,7 +34,7 @@ export const updateUserInfo = async (req: Request, res: Response) => {
 export const getUserById = async (req: Request, res: Response) => {
   try {
     const userId = +req.params.id;
-    const user = await findUserById(userId);
+    const user = await findUserByIdPublic(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -44,7 +47,7 @@ export const getUserById = async (req: Request, res: Response) => {
 export const deleteUserProfileById = async (req: Request, res: Response) => {
   try {
     const userId = +req.params.id;
-    const user = await findUserById(userId);
+    const user = await findUserByIdPublic(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -57,7 +60,7 @@ export const deleteUserProfileById = async (req: Request, res: Response) => {
 
 export const getAllUserProfiles = async (_: Request, res: Response) => {
   try {
-    const users = await getAllUsers();
+    const users = await getAllUsersPublic();
     return res.status(200).send(users);
   } catch (error) {
     return res.status(400).send('Unable to get users');

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { verifyAccessToken } from "../auth/jwt";
+import { verifyAccessToken } from "../auth/token.utils";
 
 export interface AuthRequest extends Request {
   user?: {
@@ -8,14 +8,13 @@ export interface AuthRequest extends Request {
 }
 
 export const authenticate = async (req: AuthRequest, res: Response, next: NextFunction) => {
-  const header = req.headers.authorization;
-  if (!header?.startsWith('Bearer ')) {
+  const accessToken = req.cookies.accessToken;
+  if (!accessToken) {
     return res.status(401).json({ message: 'Unauthorized' });
   }
 
   try {
-    const token = header.split(' ')[1];
-    req.user = verifyAccessToken(token);
+    req.user = verifyAccessToken(accessToken);
     next();
   } catch (error) {
     res.status(401).json({ message: 'Unauthorized' });

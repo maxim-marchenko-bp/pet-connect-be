@@ -10,13 +10,13 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   lastname!: string;
 
-  @Column({ select: false })
+  @Column()
   password!: string;
 
   @Column({ nullable: true })
   age!: number;
 
-  @Column({ default: true })
+  @Column({ default: true, name: 'is_active' })
   isActive!: boolean;
 
   @Column({ unique: true })
