@@ -14,12 +14,12 @@ const router = Router();
 
 router.get('/', [authenticate], getAllUserProfiles);
 
-router.post('/', validate(createUserSchema), addUser);
+router.post('/', [authenticate], validate(createUserSchema), addUser);
 
-router.put('/:id', validate(updateUserSchema), updateUserInfo);
+router.put('/:id', [authenticate], validate(updateUserSchema), updateUserInfo);
 
-router.get('/:id', getUserById);
+router.get('/:id', [authenticate], getUserById);
 
-router.delete('/:id', deleteUserProfileById);
+router.delete('/:id', [authenticate], deleteUserProfileById);
 
 export default router;
