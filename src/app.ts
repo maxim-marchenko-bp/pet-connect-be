@@ -1,12 +1,18 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
+
+// Common
 import { AppDataSource } from "./data-source";
+import { errorHandler } from "./common/middleware/error-handler";
+
+// Routes
+import refreshTokenRoutes from "./modules/refresh-token/refresh-token.routes";
 import userRouter from "./modules/user/user.routes";
 import authRouter from "./modules/auth/auth.routes";
-import { errorHandler } from "./common/middleware/error-handler";
-import cookieParser from 'cookie-parser';
-import refreshTokenRoutes from "./modules/refresh-token/refresh-token.routes";
+import petRouter from "./modules/pet/pet.routes";
+import { authenticate } from "./common/middleware/auth";
 
 dotenv.config();
 const PORT = process.env.PORT || 4000;
@@ -20,9 +26,13 @@ app.use(cors({origin: 'http://localhost:3000', credentials: true}));
 app.use(express.json());
 app.use(cookieParser());
 
-app.use('/api/users', userRouter);
+// Auth
 app.use('/api/auth', authRouter);
 app.use('/api/auth', refreshTokenRoutes);
+
+// Data
+app.use('/api/users', [authenticate], userRouter);
+app.use('/api/pets', [authenticate], petRouter)
 
 app.get('/', (req, res) => {
   res.send('Hello, World!');

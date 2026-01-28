@@ -8,18 +8,17 @@ import {
   addUser,
   updateUserInfo
 } from "./user.controller";
-import { authenticate } from "../../common/middleware/auth";
 
 const router = Router();
 
-router.get('/', [authenticate], getAllUserProfiles);
+router.get('/', getAllUserProfiles);
 
-router.post('/', [authenticate], validate(createUserSchema), addUser);
+router.post('/', validate(createUserSchema), addUser);
 
-router.put('/:id', [authenticate], validate(updateUserSchema), updateUserInfo);
+router.put('/:id', validate(updateUserSchema), updateUserInfo);
 
-router.get('/:id', [authenticate], getUserById);
+router.get('/:id', getUserById);
 
-router.delete('/:id', [authenticate], deleteUserProfileById);
+router.delete('/:id', deleteUserProfileById);
 
 export default router;

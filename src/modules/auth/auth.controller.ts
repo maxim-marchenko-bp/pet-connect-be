@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import { generateRefreshToken, signAccessToken } from "../../common/auth/token.utils";
-import { createUser, findUserByEmailPublic, findUserByEmailInternal } from "../user/user.service";
+import { createUser, findUserByEmailPublic, findUserByEmailInternal, findUserByIdPublic } from "../user/user.service";
 import { CreateUserDto } from "../user/user.schema";
 import { Request, Response } from 'express';
 import {
@@ -62,4 +62,14 @@ export const logoutUser = async (req: Request, res: Response) => {
     .clearCookie('accessToken')
     .clearCookie('refreshToken')
     .sendStatus(200);
+};
+
+export const getCurrentUser = async (req: Request, res: Response) => {
+  const { user } = req as (Request & { user: { id: number } });
+  const existingUser = await findUserByIdPublic(user.id);
+  if (!existingUser) {
+    throw new Error('Invalid credentials');
+  }
+
+  res.status(200).json(existingUser);
 }

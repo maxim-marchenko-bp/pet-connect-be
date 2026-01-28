@@ -8,7 +8,7 @@ export const createUserSchema = z.object({
   age: z.number().int().nonnegative().optional(),
   isActive: z.boolean().default(true),
 });
-
 export const updateUserSchema = createUserSchema.partial();
+
 export type CreateUserDto = z.infer<typeof createUserSchema>;
 export type UpdateUserDto = z.infer<typeof updateUserSchema>;

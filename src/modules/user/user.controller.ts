@@ -17,7 +17,7 @@ export const addUser = async (req: AddUserRequest, res: Response) => {
     const user = await createUser(userData);
     return res.status(201).send(user);
   } catch (error) {
-    return res.status(400).send('Unable to create user');
+    throw new Error('Unable to create user');
   }
 };
 
@@ -27,7 +27,7 @@ export const updateUserInfo = async (req: Request, res: Response) => {
     const user = await updateUser(userId, req.body);
     return res.status(200).send(user);
   } catch (error) {
-    return res.status(400).send('Unable to update user');
+    throw new Error('Unable to update user');
   }
 };
 
@@ -40,7 +40,7 @@ export const getUserById = async (req: Request, res: Response) => {
     }
     return res.status(200).send(user);
   } catch (error) {
-    return res.status(400).send('Unable to get user');
+    throw new Error('Unable to get user');
   }
 }
 
@@ -54,7 +54,7 @@ export const deleteUserProfileById = async (req: Request, res: Response) => {
     await deleteUserById(userId);
     return res.status(204).send(`User with id ${userId} deleted successfully`);
   } catch (error) {
-    return res.status(400).send('Unable to delete user');
+    throw new Error('Unable to delete user');
   }
 };
 
@@ -63,6 +63,6 @@ export const getAllUserProfiles = async (_: Request, res: Response) => {
     const users = await getAllUsersPublic();
     return res.status(200).send(users);
   } catch (error) {
-    return res.status(400).send('Unable to get users');
+    throw new Error('Unable to get users');
   }
 }

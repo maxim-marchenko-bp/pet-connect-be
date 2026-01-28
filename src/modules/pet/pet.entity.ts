@@ -14,7 +14,7 @@ export class Pet extends BaseEntity {
   })
   type!: PetType;
 
-  @Column()
+  @Column({ nullable: true })
   age!: number;
 
   @ManyToMany(() => User, user => user.pets)
