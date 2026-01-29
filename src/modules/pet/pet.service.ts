@@ -3,13 +3,19 @@ import { CreatePetDto, UpdatePetDto } from "./pet.schema";
 import { Pet } from "./pet.entity";
 import { DeleteResult, UpdateResult } from "typeorm";
 import { findPetTypeByCode } from "../pet-type/pet-type.service";
+import { NotFound } from "http-errors";
 
 export const findAllPets = async (): Promise<Pet[]> => {
   return petRepository.find({ relations: ['type'] });
 };
 
 export const findPetById = async (id: number): Promise<Pet | null > => {
-  return petRepository.findOneBy({ id });
+  const pet = await petRepository.findOneBy({ id });
+  if (!pet) {
+    throw NotFound('Pet not found' );
+  }
+
+  return pet;
 };
 
 export const createPet = async (dto: CreatePetDto): Promise<Pet> => {
@@ -26,6 +32,11 @@ export const createPet = async (dto: CreatePetDto): Promise<Pet> => {
 }
 
 export const updatePet = async (id: number, dto: UpdatePetDto): Promise<UpdateResult> => {
+  const existingPet = await findPetById(+id);
+  if (!existingPet) {
+    throw new NotFound('Pet not found');
+  }
+
   if (dto.type) {
     const type = await findPetTypeByCode(dto.type);
     if (!type) {
@@ -36,6 +47,7 @@ export const updatePet = async (id: number, dto: UpdatePetDto): Promise<UpdateRe
       ...dto,
       type,
     };
+
     return petRepository.update({ id }, petDto);
   }
 

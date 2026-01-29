@@ -13,14 +13,10 @@ export const getPetsList = async (_: Request, res: Response) => {
 export const getPetById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const existingPet = await findPetById(+id);
-    if (!existingPet) {
-      return res.status(404).json({ message: 'Pet not found' });
-    }
-    const updatedPet = await updatePet(+id, req.body);
-    res.json(updatedPet);
+    const pet = await findPetById(+id);
+    res.json(pet);
   } catch (error) {
-    throw new Error('Unable to update pet');
+    throw error;
   }
 };
 
@@ -36,15 +32,10 @@ export const createNewPet = async (req: Request, res: Response) => {
 export const updatePetInfo = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const existingPet = await findPetById(+id);
-    if (!existingPet) {
-      return res.status(404).json({ message: 'Pet not found' });
-    }
-
     const updatedPet = await updatePet(+id, req.body);
     return res.status(200).json(updatedPet);
   } catch (error) {
-    throw new Error('Unable to update pet');
+    throw error;
   }
 };
 

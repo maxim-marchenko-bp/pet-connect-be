@@ -68,6 +68,6 @@ export const deleteUserById = (id: number): Promise<DeleteResult> => {
 };
 
 export const getAllUsersPublic = async (): Promise<PublicUserDto[]> => {
-  const users = await userRepository.find();
+  const users = await userRepository.find({ relations: ['pets'] });
   return users.map(toPublicUser);
 };
