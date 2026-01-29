@@ -1,14 +1,7 @@
-import bcrypt from 'bcrypt';
-import { generateRefreshToken, signAccessToken } from "../../common/auth/token.utils";
-import { createUser, findUserByEmailPublic, findUserByEmailInternal } from "../user/user.service";
-import { CreateUserDto } from "../user/user.schema";
 import { Request, Response } from 'express';
-import {
-  deleteByToken,
-  saveToken
-} from "../refresh-token/refresh-token.service";
+import { CreateUserDto } from "../user/user.schema";
 import { accessCookieOptions, refreshCookieOptions } from "../../common/cookie/cookie.options";
-import { toPublicUser } from "../user/user.mapper";
+import { loginByEmailAndPassword, logoutByRefreshToken, registerUser } from "./auth.service";
 
 interface RegisterNewUserRequest extends Request {
   body: CreateUserDto;
@@ -16,32 +9,13 @@ interface RegisterNewUserRequest extends Request {
 
 export const registerNewUser = async (req: RegisterNewUserRequest, res: Response) => {
   const user = req.body;
-  const existingUser = await findUserByEmailPublic(user.email);
-  if (existingUser) {
-    throw new Error('Email already in use');
-  }
-
-  const hashedPassword = await bcrypt.hash(user.password, 10);
-  const newUser = await createUser({ ...user, password: hashedPassword });
-  const publicUser = toPublicUser(newUser);
+  const publicUser = await registerUser(user);
   res.status(201).json(publicUser);
 }
 
 export const loginUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  const user = await findUserByEmailInternal(email);
-  if (!user) {
-    throw new Error('Invalid credentials');
-  }
-
-  const isPasswordOk = await bcrypt.compare(password, user.password);
-  if (!isPasswordOk) {
-    throw new Error('Invalid credentials');
-  }
-
-  const accessToken = signAccessToken(user.id);
-  const refreshToken = generateRefreshToken();
-  await saveToken(user.id, refreshToken);
+  const { accessToken, refreshToken } = await loginByEmailAndPassword(email, password);
 
   res
     .cookie('accessToken', accessToken, accessCookieOptions)
@@ -52,11 +26,7 @@ export const loginUser = async (req: Request, res: Response) => {
 
 export const logoutUser = async (req: Request, res: Response) => {
   const refreshToken = req.cookies.refreshToken;
-  if (!refreshToken) {
-    throw new Error('Invalid credentials');
-  }
-
-  await deleteByToken(refreshToken);
+  await logoutByRefreshToken(refreshToken);
 
   res
     .clearCookie('accessToken')
