@@ -32,7 +32,7 @@ app.use('/api/auth', refreshTokenRoutes);
 
 // Data
 app.use('/api/users', [authenticate], userRouter);
-app.use('/api/pets', [authenticate], petRouter)
+app.use('/api/pets', [authenticate], petRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello, World!');

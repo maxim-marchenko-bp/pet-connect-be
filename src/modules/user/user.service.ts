@@ -10,6 +10,14 @@ export const createUser = (dto: CreateUserDto): Promise<User> => {
   return userRepository.save(userDto);
 };
 
+export const assignPetsToUser = async (userId: number, petIds: number[]) => {
+  return await userRepository
+    .createQueryBuilder()
+    .relation('pets')
+    .of(userId)
+    .add(petIds);
+};
+
 export const updateUser = async (id: number, dto: UpdateUserDto): Promise<UpdateResult> => {
   return userRepository.update({id}, dto);
 };
@@ -21,7 +29,7 @@ export const findUserByIdPublic = async (id: number): Promise<PublicUserDto | nu
   }
 
   return toPublicUser(user);
-}
+};
 
 export const findUserByEmailPublic = async (email: string): Promise<PublicUserDto | null> => {
   const user = await userRepository.findOneBy({ email });
@@ -43,4 +51,4 @@ export const deleteUserById = (id: number): Promise<DeleteResult> => {
 export const getAllUsersPublic = async (): Promise<PublicUserDto[]> => {
   const users = await userRepository.find();
   return users.map(toPublicUser);
-}
+};

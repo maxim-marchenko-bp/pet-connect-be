@@ -4,4 +4,5 @@ export enum PetType {
   BIRD = 'bird',
   FISH = 'fish',
   REPTILE = 'reptile',
+  SPIDER = 'spider',
 }

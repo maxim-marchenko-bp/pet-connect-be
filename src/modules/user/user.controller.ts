@@ -1,9 +1,23 @@
-import { createUser, deleteUserById, findUserByEmailPublic, findUserByIdPublic, getAllUsersPublic, updateUser } from "./user.service";
+import {
+  assignPetsToUser,
+  createUser,
+  deleteUserById,
+  findUserByEmailPublic,
+  findUserByIdPublic,
+  getAllUsersPublic,
+  updateUser
+} from "./user.service";
 import { CreateUserDto } from "./user.schema";
 import { Request, Response } from 'express';
 
 interface AddUserRequest extends Request {
   body: CreateUserDto;
+}
+
+interface AssignPetToUserRequest extends Request {
+  body: {
+    petIds: number[];
+  };
 }
 
 export const addUser = async (req: AddUserRequest, res: Response) => {
@@ -65,4 +79,26 @@ export const getAllUserProfiles = async (_: Request, res: Response) => {
   } catch (error) {
     throw new Error('Unable to get users');
   }
+};
+
+export const assignPetToUser = async (req: AssignPetToUserRequest, res: Response) => {
+  try {
+    const { petIds } = req.body;
+    const userId = +req.params.id;
+    const updatedUser = await assignPetsToUser(userId, petIds);
+    res.status(200).send(updatedUser);
+  } catch (error) {
+    throw new Error((error as { message: string }).message);
+  }
 }
+
+export const getCurrentUser = async (req: Request, res: Response) => {
+  const { user } = req as (Request & { user: { id: number } });
+  const existingUser = await findUserByIdPublic(user.id);
+  if (!existingUser) {
+    throw new Error('Invalid credentials');
+  }
+
+  res.status(200).json(existingUser);
+}
+
