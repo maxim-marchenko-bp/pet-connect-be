@@ -1,10 +1,12 @@
 import {
-  assignPetsToUser,
+  addPetIdsToUser,
   createUser,
   deleteUserById,
   findUserByEmailPublic,
   findUserByIdPublic,
   getAllUsersPublic,
+  getPetsIdsByUserId,
+  removePetIdsFromUser,
   updateUser
 } from "./user.service";
 import { CreateUserDto } from "./user.schema";
@@ -81,11 +83,13 @@ export const getAllUserProfiles = async (_: Request, res: Response) => {
   }
 };
 
-export const assignPetToUser = async (req: AssignPetToUserRequest, res: Response) => {
+export const assignPetsToUser = async (req: AssignPetToUserRequest, res: Response) => {
   try {
     const { petIds } = req.body;
     const userId = +req.params.id;
-    const updatedUser = await assignPetsToUser(userId, petIds);
+    const petsIds = await getPetsIdsByUserId(userId);
+    await removePetIdsFromUser(userId, petsIds);
+    const updatedUser = await addPetIdsToUser(userId, petIds);
     res.status(200).send(updatedUser);
   } catch (error) {
     throw new Error((error as { message: string }).message);

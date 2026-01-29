@@ -1,11 +1,8 @@
 import { z } from "zod";
-import { PetType } from "./constants/pet-type.enum";
-
-const petTypeValues = Object.values(PetType);
 
 export const createPetSchema = z.object({
   name: z.string().min(1),
-  type: z.enum([...petTypeValues]),
+  type: z.string().min(1),
   age: z.number().int().nonnegative().optional(),
 });
 export const updatePetSchema = createPetSchema.partial();

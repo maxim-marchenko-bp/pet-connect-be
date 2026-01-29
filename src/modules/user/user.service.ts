@@ -10,13 +10,32 @@ export const createUser = (dto: CreateUserDto): Promise<User> => {
   return userRepository.save(userDto);
 };
 
-export const assignPetsToUser = async (userId: number, petIds: number[]) => {
+export const addPetIdsToUser = async (userId: number, petIds: number[]): Promise<void> => {
   return await userRepository
     .createQueryBuilder()
     .relation('pets')
     .of(userId)
     .add(petIds);
 };
+
+export const removePetIdsFromUser = async (userId: number, petIds: number[]): Promise<void> => {
+  return await userRepository
+    .createQueryBuilder()
+    .relation('pets')
+    .of(userId)
+    .remove(petIds);
+};
+
+export const getPetsIdsByUserId = async (userId: number): Promise<number[]> => {
+  const pets = await userRepository
+    .createQueryBuilder("user")
+    .leftJoin("user.pets", "pet")
+    .where("user.id = :userId", { userId })
+    .select('pet.id', 'petId')
+    .getRawMany<{ petId: number }>();
+
+  return pets.map(p => p.petId);
+}
 
 export const updateUser = async (id: number, dto: UpdateUserDto): Promise<UpdateResult> => {
   return userRepository.update({id}, dto);

@@ -7,8 +7,8 @@ import {
   getUserById,
   addUser,
   updateUserInfo,
-  assignPetToUser,
-  getCurrentUser
+  getCurrentUser,
+  assignPetsToUser
 } from "./user.controller";
 
 const router = Router();
@@ -23,7 +23,7 @@ router.put('/:id', validate(updateUserSchema), updateUserInfo);
 
 router.get('/:id', getUserById);
 
-router.post('/:id/pets', assignPetToUser);
+router.post('/:id/pets', assignPetsToUser);
 
 router.delete('/:id', deleteUserProfileById);
 

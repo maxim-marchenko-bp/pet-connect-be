@@ -12,6 +12,7 @@ import refreshTokenRoutes from "./modules/refresh-token/refresh-token.routes";
 import userRouter from "./modules/user/user.routes";
 import authRouter from "./modules/auth/auth.routes";
 import petRouter from "./modules/pet/pet.routes";
+import petTypeRouter from "./modules/pet-type/pet-type.routes";
 import { authenticate } from "./common/middleware/auth";
 
 dotenv.config();
@@ -33,6 +34,7 @@ app.use('/api/auth', refreshTokenRoutes);
 // Data
 app.use('/api/users', [authenticate], userRouter);
 app.use('/api/pets', [authenticate], petRouter);
+app.use('/api/pet-types', [authenticate], petTypeRouter)
 
 app.get('/', (req, res) => {
   res.send('Hello, World!');
