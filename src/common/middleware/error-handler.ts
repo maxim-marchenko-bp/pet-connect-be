@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
-import { NotFound, Unauthorized } from "http-errors";
+import { Conflict, NotFound, Unauthorized } from "http-errors";
 
 export const errorHandler = (
   err: any,
@@ -25,6 +25,12 @@ export const errorHandler = (
     return res.status(401).json({
       message: err.message || 'Unauthorized',
     });
+  }
+
+  if (err instanceof Conflict) {
+    return res.status(409).json({
+      message: err.message || 'Conflict error',
+    })
   }
 
   return res.status(500).json({

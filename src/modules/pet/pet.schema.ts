@@ -3,7 +3,7 @@ import { z } from "zod";
 export const createPetSchema = z.object({
   name: z.string().min(1),
   type: z.string().min(1),
-  age: z.number().int().nonnegative().optional(),
+  age: z.number().int().nonnegative().nullable().optional(),
 });
 export const updatePetSchema = createPetSchema.partial();
 

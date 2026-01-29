@@ -1,5 +1,5 @@
 import { CreateUserDto } from "../user/user.schema";
-import { createUser, findUserByEmailInternal, findUserByEmailPublic } from "../user/user.service";
+import { findUserByEmailInternal, findUserByEmailPublic, saveUser } from "../user/user.service";
 import bcrypt from "bcrypt";
 import { toPublicUser } from "../user/user.mapper";
 import { generateRefreshToken, signAccessToken } from "../../common/auth/token.utils";
@@ -12,7 +12,7 @@ export const registerUser = async (user: CreateUserDto) => {
   }
 
   const hashedPassword = await bcrypt.hash(user.password, 10);
-  const newUser = await createUser({ ...user, password: hashedPassword });
+  const newUser = await saveUser({ ...user, password: hashedPassword });
   return toPublicUser(newUser);
 };
 

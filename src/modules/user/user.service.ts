@@ -4,13 +4,17 @@ import { toPublicUser } from "./user.mapper";
 import { User } from "./user.entity";
 import { DeleteResult, UpdateResult } from "typeorm";
 import { PublicUserDto } from "./user.dto";
+import { Conflict, NotFound } from "http-errors";
 
-export const createUser = (dto: CreateUserDto): Promise<User> => {
+export const saveUser = (dto: CreateUserDto): Promise<User> => {
   const userDto = userRepository.create(dto);
   return userRepository.save(userDto);
 };
 
 export const addPetIdsToUser = async (userId: number, petIds: number[]): Promise<void> => {
+  const petsIds = await getPetsIdsByUserId(userId);
+  await removePetIdsFromUser(userId, petsIds);
+
   return await userRepository
     .createQueryBuilder()
     .relation('pets')
@@ -44,7 +48,7 @@ export const updateUser = async (id: number, dto: UpdateUserDto): Promise<Update
 export const findUserByIdPublic = async (id: number): Promise<PublicUserDto | null> => {
   const user = await userRepository.findOneBy({ id });
   if (!user) {
-    return null;
+    throw new NotFound("User not found" );
   }
 
   return toPublicUser(user);
@@ -71,3 +75,12 @@ export const getAllUsersPublic = async (): Promise<PublicUserDto[]> => {
   const users = await userRepository.find({ relations: ['pets'] });
   return users.map(toPublicUser);
 };
+
+export const addNewUser = async (dto: CreateUserDto) => {
+  const existingUser = await findUserByEmailPublic(dto.email);
+  if (existingUser) {
+    throw new Conflict('Email already in use');
+  }
+
+  return await saveUser(dto);
+}
