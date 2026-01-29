@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
-import { NotFound } from "http-errors";
+import { NotFound, Unauthorized } from "http-errors";
 
 export const errorHandler = (
   err: any,
@@ -21,7 +21,12 @@ export const errorHandler = (
     });
   }
 
-  console.log('EEEEE', err)
+  if (err instanceof Unauthorized) {
+    return res.status(401).json({
+      message: err.message || 'Unauthorized',
+    });
+  }
+
   return res.status(500).json({
     message: err.message ?? 'Internal server error',
   });
