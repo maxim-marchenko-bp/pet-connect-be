@@ -5,7 +5,7 @@ export const createUserSchema = z.object({
   lastname: z.string().optional(),
   email: z.email(),
   password: z.string().min(6),
-  age: z.number().int().nonnegative().optional(),
+  dateOfBirth: z.coerce.date().optional(),
   isActive: z.boolean().default(true),
 });
 export const updateUserSchema = createUserSchema.partial();

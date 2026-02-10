@@ -4,7 +4,7 @@ import { toPublicUser } from "./user.mapper";
 import { User } from "./user.entity";
 import { DeleteResult, UpdateResult } from "typeorm";
 import { PublicUserDto } from "./user.dto";
-import { Conflict, NotFound } from "http-errors";
+import { Conflict, Unauthorized } from "http-errors";
 
 export const saveUser = (dto: CreateUserDto): Promise<User> => {
   const userDto = userRepository.create(dto);
@@ -48,7 +48,7 @@ export const updateUser = async (id: number, dto: UpdateUserDto): Promise<Update
 export const findUserByIdPublic = async (id: number): Promise<PublicUserDto | null> => {
   const user = await userRepository.findOneBy({ id });
   if (!user) {
-    throw new NotFound("User not found" );
+    throw new Unauthorized('Unauthorized');
   }
 
   return toPublicUser(user);

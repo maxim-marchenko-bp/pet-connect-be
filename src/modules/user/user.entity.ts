@@ -13,8 +13,8 @@ export class User extends BaseEntity {
   @Column()
   password!: string;
 
-  @Column({ nullable: true })
-  age!: number;
+  @Column({ nullable: true, name: 'date_of_birth', default: null })
+  dateOfBirth?: Date;
 
   @Column({ default: true, name: 'is_active' })
   isActive!: boolean;

@@ -20,7 +20,8 @@ export const loginUser = async (req: Request, res: Response) => {
   res
     .cookie('accessToken', accessToken, accessCookieOptions)
     .cookie('refreshToken', refreshToken, refreshCookieOptions)
-    .sendStatus(200)
+    .status(200)
+    .json({ success: true })
   ;
 };
 
@@ -31,5 +32,6 @@ export const logoutUser = async (req: Request, res: Response) => {
   res
     .clearCookie('accessToken')
     .clearCookie('refreshToken')
-    .sendStatus(200);
+    .status(200)
+    .json({ success: true });
 };

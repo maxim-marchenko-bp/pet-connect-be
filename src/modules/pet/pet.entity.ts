@@ -8,8 +8,8 @@ export class Pet extends BaseEntity {
   @Column()
   name!: string;
 
-  @Column({ nullable: true })
-  age!: number;
+  @Column({ nullable: true, name: 'date_of_birth' })
+  dateOfBirth!: Date;
 
   @ManyToOne(() => PetType, { onDelete: "CASCADE", nullable: false })
   @JoinColumn({ name: 'pet_type_id' })

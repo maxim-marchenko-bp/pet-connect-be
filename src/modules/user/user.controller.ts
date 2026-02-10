@@ -32,7 +32,8 @@ export const addUser = async (req: AddUserRequest, res: Response) => {
 export const updateUserInfo = async (req: Request, res: Response) => {
   try {
     const userId = +req.params.id;
-    const user = await updateUser(userId, req.body);
+    await updateUser(userId, req.body);
+    const user = await findUserByIdPublic(userId);
     return res.status(200).send(user);
   } catch (error) {
     throw new Error('Unable to update user');

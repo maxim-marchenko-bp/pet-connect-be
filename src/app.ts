@@ -15,6 +15,11 @@ import petRouter from "./modules/pet/pet.routes";
 import petTypeRouter from "./modules/pet-type/pet-type.routes";
 import { authenticate } from "./common/middleware/auth";
 
+const allowedOrigins = [
+  "http://localhost:3001",
+  "http://localhost:3000",
+];
+
 dotenv.config();
 const PORT = process.env.PORT || 4000;
 const app = express();
@@ -23,7 +28,16 @@ AppDataSource.initialize()
   .then(() => console.log('Data source initialized'))
   .catch((error: Error) => console.error('Error during data source initialization:', error));
 
-app.use(cors({origin: 'http://localhost:3000', credentials: true}));
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+}));
 app.use(express.json());
 app.use(cookieParser());
 

@@ -9,5 +9,6 @@ export const refreshToken = async (req: Request, res: Response) => {
   res
     .cookie('accessToken', newAccessToken, accessCookieOptions)
     .cookie('refreshToken', newRefreshToken, refreshCookieOptions)
-    .sendStatus(200);
+    .status(200)
+    .json({ message: 'OK' });
 };
