@@ -8,12 +8,15 @@ import {
   addUser,
   updateUserInfo,
   getCurrentUser,
-  assignPetsToUser
+  assignPetsToUser,
+  getUserProfilesList,
 } from "./user.controller";
 
 const router = Router();
 
 router.get('/', getAllUserProfiles);
+
+router.post('/list', getUserProfilesList)
 
 router.get('/me', getCurrentUser);
 

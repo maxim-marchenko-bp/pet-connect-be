@@ -2,9 +2,10 @@ import { userRepository } from "./user.repository";
 import { CreateUserDto, UpdateUserDto } from "./user.schema";
 import { toPublicUser } from "./user.mapper";
 import { User } from "./user.entity";
-import { DeleteResult, UpdateResult } from "typeorm";
+import { DeleteResult, Equal, FindManyOptions, Not, UpdateResult } from "typeorm";
 import { PublicUserDto } from "./user.dto";
 import { Conflict, Unauthorized } from "http-errors";
+import { FilteredResponse } from "../../common/models/filtered-response";
 
 export const saveUser = (dto: CreateUserDto): Promise<User> => {
   const userDto = userRepository.create(dto);
@@ -83,4 +84,17 @@ export const addNewUser = async (dto: CreateUserDto) => {
   }
 
   return await saveUser(dto);
+}
+
+export const findUserProfiles = async (excludeUserId: number, filters: FindManyOptions<User>): Promise<FilteredResponse<User>> => {
+  const items = await userRepository.find({
+    where: {
+      id: Not(Equal(excludeUserId))
+    },
+    ...filters,
+  });
+
+  const totalCount = await userRepository.countBy({ id: Not(Equal(excludeUserId)) });
+
+  return { items, totalCount };
 }

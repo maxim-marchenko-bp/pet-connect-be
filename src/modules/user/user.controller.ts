@@ -3,6 +3,7 @@ import {
   addPetIdsToUser,
   deleteUserById,
   findUserByIdPublic,
+  findUserProfiles,
   getAllUsersPublic,
   updateUser
 } from "./user.service";
@@ -85,5 +86,17 @@ export const getCurrentUser = async (req: Request, res: Response) => {
   const existingUser = await findUserByIdPublic(user.id);
 
   res.status(200).json(existingUser);
+}
+
+export const getUserProfilesList = async (req: Request, res: Response) => {
+  const { user: { id } } = req as (Request & { user: { id: number } });
+  const filters = req.body;
+  try {
+    const findResult = await findUserProfiles(id, filters);
+    res.status(200).json(findResult);
+  } catch (error) {
+    throw new Error((error as { message: string }).message);
+  }
+
 }
 
