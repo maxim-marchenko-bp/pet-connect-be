@@ -16,7 +16,7 @@ const router = Router();
 
 router.get('/', getAllUserProfiles);
 
-router.post('/list', getUserProfilesList)
+router.get('/list', getUserProfilesList)
 
 router.get('/me', getCurrentUser);
 

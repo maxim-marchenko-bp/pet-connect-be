@@ -9,6 +9,7 @@ import {
 } from "./user.service";
 import { CreateUserDto } from "./user.schema";
 import { Request, Response } from 'express';
+import { ListFilterParams } from "../../common/models/list-filter-params";
 
 interface AddUserRequest extends Request {
   body: CreateUserDto;
@@ -89,8 +90,8 @@ export const getCurrentUser = async (req: Request, res: Response) => {
 }
 
 export const getUserProfilesList = async (req: Request, res: Response) => {
-  const { user: { id } } = req as (Request & { user: { id: number } });
-  const filters = req.body;
+  const { user: { id } } = req as (Request & { user: { id: number }});
+  const filters = req.query as unknown as ListFilterParams;
   try {
     const findResult = await findUserProfiles(id, filters);
     res.status(200).json(findResult);

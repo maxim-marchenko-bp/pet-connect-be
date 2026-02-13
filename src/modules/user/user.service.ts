@@ -2,10 +2,12 @@ import { userRepository } from "./user.repository";
 import { CreateUserDto, UpdateUserDto } from "./user.schema";
 import { toPublicUser } from "./user.mapper";
 import { User } from "./user.entity";
-import { DeleteResult, Equal, FindManyOptions, Not, UpdateResult } from "typeorm";
+import { DeleteResult, Equal, Not, UpdateResult } from "typeorm";
 import { PublicUserDto } from "./user.dto";
 import { Conflict, Unauthorized } from "http-errors";
 import { FilteredResponse } from "../../common/models/filtered-response";
+
+import { ListFilterParams } from "../../common/models/list-filter-params";
 
 export const saveUser = (dto: CreateUserDto): Promise<User> => {
   const userDto = userRepository.create(dto);
@@ -86,12 +88,14 @@ export const addNewUser = async (dto: CreateUserDto) => {
   return await saveUser(dto);
 }
 
-export const findUserProfiles = async (excludeUserId: number, filters: FindManyOptions<User>): Promise<FilteredResponse<User>> => {
+export const findUserProfiles = async (excludeUserId: number, filters: ListFilterParams): Promise<FilteredResponse<User>> => {
+  const { page = 1, pageSize = 10, searchTerm = '' } = filters;
   const items = await userRepository.find({
     where: {
-      id: Not(Equal(excludeUserId))
+      id: Not(Equal(excludeUserId)),
     },
-    ...filters,
+    take: pageSize,
+    skip: (page - 1) * pageSize,
   });
 
   const totalCount = await userRepository.countBy({ id: Not(Equal(excludeUserId)) });
