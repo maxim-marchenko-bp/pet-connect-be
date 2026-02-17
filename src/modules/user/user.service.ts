@@ -2,7 +2,7 @@ import { userRepository } from "./user.repository";
 import { CreateUserDto, UpdateUserDto } from "./user.schema";
 import { toPublicUser } from "./user.mapper";
 import { User } from "./user.entity";
-import { DeleteResult, Equal, Not, UpdateResult } from "typeorm";
+import { DeleteResult, Equal, Like, Not, UpdateResult } from "typeorm";
 import { PublicUserDto } from "./user.dto";
 import { Conflict, Unauthorized } from "http-errors";
 import { FilteredResponse } from "../../common/models/filtered-response";
@@ -89,16 +89,19 @@ export const addNewUser = async (dto: CreateUserDto) => {
 }
 
 export const findUserProfiles = async (excludeUserId: number, filters: ListFilterParams): Promise<FilteredResponse<User>> => {
-  const { page = 1, pageSize = 10, searchTerm = '' } = filters;
+  const { page = 1, pageSize: take = 10, searchTerm = '' } = filters;
+  const skip = (page - 1) * take;
+  const where = {
+    id: Not(Equal(excludeUserId)),
+    name: searchTerm ? Like(`%${searchTerm}%`) : undefined,
+  };
   const items = await userRepository.find({
-    where: {
-      id: Not(Equal(excludeUserId)),
-    },
-    take: pageSize,
-    skip: (page - 1) * pageSize,
+    where,
+    take,
+    skip,
   });
 
-  const totalCount = await userRepository.countBy({ id: Not(Equal(excludeUserId)) });
+  const totalCount = await userRepository.countBy(where);
 
   return { items, totalCount };
 }
