@@ -1,6 +1,7 @@
 import { Entity, Column, ManyToMany, JoinTable } from 'typeorm'
 import { BaseEntity } from "../../common/entities/base.entity";
 import { Pet } from "../pet/pet.entity";
+import { Gender } from "./user.model";
 
 @Entity()
 export class User extends BaseEntity {
@@ -21,6 +22,9 @@ export class User extends BaseEntity {
 
   @Column({ unique: true })
   email!: string;
+
+  @Column({ type: 'enum', enum: Gender, default: Gender.MALE, })
+  gender!: Gender;
 
   @ManyToMany(() => Pet, pet => pet.users)
   @JoinTable({

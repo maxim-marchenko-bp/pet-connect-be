@@ -2,6 +2,7 @@ import {
   addNewUser,
   addPetIdsToUser,
   deleteUserById,
+  findPetsByUserId,
   findUserByIdPublic,
   findUserProfiles,
   getAllUsersPublic,
@@ -9,7 +10,7 @@ import {
 } from "./user.service";
 import { CreateUserDto } from "./user.schema";
 import { Request, Response } from 'express';
-import { ListFilterParams } from "../../common/models/list-filter-params";
+import { QueryFilterRequest } from "../../common/models/query-filter-request";
 
 interface AddUserRequest extends Request {
   body: CreateUserDto;
@@ -89,15 +90,24 @@ export const getCurrentUser = async (req: Request, res: Response) => {
   res.status(200).json(existingUser);
 }
 
-export const getUserProfilesList = async (req: Request, res: Response) => {
-  const { user: { id } } = req as (Request & { user: { id: number }});
-  const filters = req.query as unknown as ListFilterParams;
+export const getUserProfilesList = async (req: QueryFilterRequest, res: Response) => {
+  const filters = req.query;
   try {
-    const findResult = await findUserProfiles(id, filters);
+    const findResult = await findUserProfiles(filters);
     res.status(200).json(findResult);
   } catch (error) {
     throw new Error((error as { message: string }).message);
   }
+}
 
+export const getPetsByUserId = async (req: QueryFilterRequest, res: Response) => {
+  const { id } = req.params;
+  const filters = req.query;
+  try {
+    const pets = await findPetsByUserId(+id, filters);
+    res.status(200).json(pets);
+  } catch (error) {
+    throw new Error((error as { message: string }).message);
+  }
 }
 

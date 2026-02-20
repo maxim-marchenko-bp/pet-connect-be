@@ -2,12 +2,14 @@ import { userRepository } from "./user.repository";
 import { CreateUserDto, UpdateUserDto } from "./user.schema";
 import { toPublicUser } from "./user.mapper";
 import { User } from "./user.entity";
-import { DeleteResult, Equal, ILike, Like, Not, UpdateResult } from "typeorm";
+import { DeleteResult, UpdateResult } from "typeorm";
 import { PublicUserDto } from "./user.dto";
 import { Conflict, Unauthorized } from "http-errors";
 import { FilteredResponse } from "../../common/models/filtered-response";
-
 import { ListFilterParams } from "../../common/models/list-filter-params";
+import { normalizeFilters } from "../../common/utils/normalize-filters";
+import { petRepository } from "../pet/pet.repository";
+import { listQueryBuilder } from "../../common/utils/list-query-builder";
 
 export const saveUser = (dto: CreateUserDto): Promise<User> => {
   const userDto = userRepository.create(dto);
@@ -88,35 +90,27 @@ export const addNewUser = async (dto: CreateUserDto) => {
   return await saveUser(dto);
 }
 
-export const findUserProfiles = async (excludeUserId: number, filters: ListFilterParams): Promise<FilteredResponse<User>> => {
-  const { page = 1, pageSize: take = 10, searchTerm = '' } = filters;
-  const skip = (page - 1) * take;
-  const baseCondition = {
-    id: Not(Equal(excludeUserId)),
-  };
-
-  const where = searchTerm
-    ? [
-        {
-          ...baseCondition,
-          name: ILike(`%${searchTerm}%`),
-        },
-        {
-          ...baseCondition,
-          lastname: ILike(`%${searchTerm}%`),
-        },
-      ]
-    : baseCondition;
-
-  const items = await userRepository.find({
-    where,
-    take,
-    skip,
-  });
-
-  const totalCount = await userRepository.count({
-    where,
-  });
+export const findUserProfiles = async (filters: ListFilterParams): Promise<FilteredResponse<User>> => {
+  const normalizedFilters = normalizeFilters(filters);
+  const queryBuilder = userRepository.createQueryBuilder('user');
+  const extendedQueryBuilder = listQueryBuilder(queryBuilder, normalizedFilters, 'user', ['name', 'lastname']);
+  const [items, totalCount] = await extendedQueryBuilder.getManyAndCount();
 
   return { items, totalCount };
 }
+
+export const findPetsByUserId = async (userId: number, filters: ListFilterParams) => {
+  const normalizedFilters = normalizeFilters(filters);
+
+  const queryBuilder = petRepository
+    .createQueryBuilder('pet')
+    .leftJoin('pet.users', 'user')
+    .leftJoin('pet.type', 'type')
+    .select(['pet.id', 'pet.name', 'pet.dateOfBirth', 'type.code', 'type.label'])
+    .where('user.id = :userId', { userId });
+  const extendedQueryBuilder = listQueryBuilder(queryBuilder, normalizedFilters, 'pet', ['name']);
+  const [items, totalCount] = await extendedQueryBuilder.getManyAndCount();
+
+  return { items, totalCount };
+}
+
