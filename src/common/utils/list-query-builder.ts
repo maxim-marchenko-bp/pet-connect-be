@@ -11,7 +11,7 @@ export const listQueryBuilder = <T extends ObjectLiteral>(
 
   if (ids?.length && excludeIds?.length && !filteredIds.length) {
     queryBuilder.andWhere('1=0');
-  }else if (ids?.length && excludeIds?.length && filteredIds?.length) {
+  } else if (ids?.length && excludeIds?.length && filteredIds?.length) {
     queryBuilder.andWhere(`${entityAlias}.id IN (:...filteredIds)`, { filteredIds });
   } else if (ids?.length) {
     queryBuilder.andWhere(`${entityAlias}.id IN (:...ids)`, { ids });
