@@ -1,7 +1,8 @@
-import { createPet, deletePet, findAllPets, findPetById, updatePet } from "./pet.service";
+import { createPet, deletePet, findAllPets, findPetById, findPets, updatePet } from "./pet.service";
 import { Request, Response } from 'express';
+import { QueryFilterRequest } from "../../common/models/query-filter-request";
 
-export const getPetsList = async (_: Request, res: Response) => {
+export const getAllPets = async (_: Request, res: Response) => {
   try {
     const pets = await findAllPets();
     res.json(pets);
@@ -9,6 +10,16 @@ export const getPetsList = async (_: Request, res: Response) => {
     throw new Error('Unable to get pets');
   }
 };
+
+export const getPetsList = async (req: QueryFilterRequest, res: Response) => {
+  const filters = req.query;
+  try {
+    const findResult = await findPets(filters);
+    res.status(200).json(findResult);
+  } catch (error) {
+    throw new Error((error as { message: string }).message);
+  }
+}
 
 export const getPetById = async (req: Request, res: Response) => {
   try {

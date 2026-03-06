@@ -4,6 +4,10 @@ import { Pet } from "./pet.entity";
 import { DeleteResult, UpdateResult } from "typeorm";
 import { findPetTypeByCode } from "../pet-type/pet-type.service";
 import { NotFound } from "http-errors";
+import { ListFilterParams } from "../../common/models/list-filter-params";
+import { FilteredResponse } from "../../common/models/filtered-response";
+import { normalizeFilters } from "../../common/utils/normalize-filters";
+import { listQueryBuilder } from "../../common/utils/list-query-builder";
 
 export const findAllPets = async (): Promise<Pet[]> => {
   return petRepository.find({ relations: ['type'] });
@@ -29,7 +33,7 @@ export const createPet = async (dto: CreatePetDto): Promise<Pet> => {
   };
   const newPet = petRepository.create(petDto);
   return await petRepository.save(newPet);
-}
+};
 
 export const updatePet = async (id: number, dto: UpdatePetDto): Promise<UpdateResult> => {
   const existingPet = await findPetById(+id);
@@ -57,4 +61,17 @@ export const updatePet = async (id: number, dto: UpdatePetDto): Promise<UpdateRe
 
 export const deletePet = async (id: number): Promise<DeleteResult> => {
   return petRepository.delete({ id });
-}
+};
+
+export const findPets = async (filters: ListFilterParams): Promise<FilteredResponse<Pet>> => {
+  const normalizedFilters = normalizeFilters(filters);
+  const queryBuilder = petRepository
+    .createQueryBuilder('pet')
+    .leftJoin('pet.type', 'type')
+    .select('pet')
+    .addSelect(['type.code', 'type.label']);
+  const extendedQueryBuilder = listQueryBuilder(queryBuilder, normalizedFilters, 'pet', ['name']);
+  const [items, totalCount] = await extendedQueryBuilder.getManyAndCount();
+
+  return { items, totalCount };
+};
