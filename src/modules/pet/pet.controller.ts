@@ -1,4 +1,4 @@
-import { createPet, deletePet, findAllPets, findPetById, findPets, updatePet } from "./pet.service";
+import { createPet, deletePet, findAllPets, findPetById, findPets, findUsersByPetId, updatePet } from "./pet.service";
 import { Request, Response } from 'express';
 import { QueryFilterRequest } from "../../common/models/query-filter-request";
 
@@ -57,5 +57,16 @@ export const deletePetById = async (req: Request, res: Response) => {
     res.status(200).send(`Pet with id ${+id} deleted successfully`);
   } catch (error) {
     throw new Error('Unable to delete pet');
+  }
+}
+
+export const getUsersByPetId = async (req: QueryFilterRequest, res: Response) => {
+  const { id } = req.params;
+  const filters = req.query;
+  try {
+    const pets = await findUsersByPetId(+id, filters);
+    res.status(200).json(pets);
+  } catch (error) {
+    throw new Error((error as { message: string }).message);
   }
 }

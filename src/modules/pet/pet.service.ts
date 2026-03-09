@@ -8,13 +8,19 @@ import { ListFilterParams } from "../../common/models/list-filter-params";
 import { FilteredResponse } from "../../common/models/filtered-response";
 import { normalizeFilters } from "../../common/utils/normalize-filters";
 import { listQueryBuilder } from "../../common/utils/list-query-builder";
+import { userRepository } from "../user/user.repository";
 
 export const findAllPets = async (): Promise<Pet[]> => {
   return petRepository.find({ relations: ['type'] });
 };
 
 export const findPetById = async (id: number): Promise<Pet | null > => {
-  const pet = await petRepository.findOneBy({ id });
+  const pet = await petRepository
+    .createQueryBuilder('pet')
+    .leftJoin('pet.type', 'type')
+    .select(['pet', 'type.code', 'type.label'])
+    .where('pet.id = :id', { id })
+    .getOne();
   if (!pet) {
     throw NotFound('Pet not found' );
   }
@@ -75,3 +81,16 @@ export const findPets = async (filters: ListFilterParams): Promise<FilteredRespo
 
   return { items, totalCount };
 };
+
+export const findUsersByPetId = async (petId: number, filters: ListFilterParams) => {
+  const normalizedFilters = normalizeFilters(filters);
+
+  const queryBuilder = userRepository
+    .createQueryBuilder('user')
+    .leftJoin('user.pets', 'pet')
+    .where('pet.id = :petId', { petId });
+  const extendedQueryBuilder = listQueryBuilder(queryBuilder, normalizedFilters, 'user', ['name']);
+  const [items, totalCount] = await extendedQueryBuilder.getManyAndCount();
+
+  return { items, totalCount };
+}
