@@ -6,7 +6,7 @@ import {
   findUserByIdPublic,
   findUserProfiles,
   getAllUsersPublic,
-  updateUser
+  updateUser, updateUserPassword
 } from "./user.service";
 import { CreateUserDto } from "./user.schema";
 import { Request, Response } from 'express';
@@ -106,6 +106,17 @@ export const getPetsByUserId = async (req: QueryFilterRequest, res: Response) =>
   try {
     const pets = await findPetsByUserId(+id, filters);
     res.status(200).json(pets);
+  } catch (error) {
+    throw new Error((error as { message: string }).message);
+  }
+}
+
+export const changeUserPassword = async (req: Request, res: Response) => {
+  const { id } = req.user;
+  try {
+    const { currentPassword, newPassword } = req.body;
+    await updateUserPassword(id, currentPassword, newPassword);
+    res.status(200).send({ message: 'Password successfully changed' });
   } catch (error) {
     throw new Error((error as { message: string }).message);
   }

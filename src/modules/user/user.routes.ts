@@ -11,6 +11,7 @@ import {
   assignPetsToUser,
   getUserProfilesList,
   getPetsByUserId,
+  changeUserPassword,
 } from "./user.controller";
 
 const router = Router();
@@ -20,6 +21,8 @@ router.get('/', getAllUserProfiles);
 router.get('/list', getUserProfilesList)
 
 router.get('/me', getCurrentUser);
+
+router.post('/me/change-password', changeUserPassword);
 
 router.post('/', validate(createUserSchema), addUser);
 

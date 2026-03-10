@@ -10,6 +10,7 @@ import { ListFilterParams } from "../../common/models/list-filter-params";
 import { normalizeFilters } from "../../common/utils/normalize-filters";
 import { petRepository } from "../pet/pet.repository";
 import { listQueryBuilder } from "../../common/utils/list-query-builder";
+import bcrypt from "bcrypt";
 
 export const saveUser = (dto: CreateUserDto): Promise<User> => {
   const userDto = userRepository.create(dto);
@@ -58,6 +59,15 @@ export const findUserByIdPublic = async (id: number): Promise<PublicUserDto | nu
 
   return toPublicUser(user);
 };
+
+export const findUserByIdInternal = async (id: number): Promise<User | null> => {
+  const user = await userRepository.findOneBy({ id });
+  if (!user) {
+    throw new Unauthorized('Unauthorized');
+  }
+
+  return user;
+}
 
 export const findUserByEmailPublic = async (email: string): Promise<PublicUserDto | null> => {
   const user = await userRepository.findOneBy({ email });
@@ -112,5 +122,21 @@ export const findPetsByUserId = async (userId: number, filters: ListFilterParams
   const [items, totalCount] = await extendedQueryBuilder.getManyAndCount();
 
   return { items, totalCount };
+}
+
+export const updateUserPassword = async (userId: number, oldPassword: string, newPassword: string) => {
+  const user = await findUserByIdInternal(userId);
+  if (!user) {
+    throw new Unauthorized('Unauthorized');
+  }
+
+  const isPasswordOk = await bcrypt.compare(oldPassword, user.password);
+  if (!isPasswordOk) {
+    throw new Unauthorized('Unauthorized');
+  }
+
+  const newHashedPassword = await bcrypt.hash(newPassword, 10);
+  return userRepository.update({ id: userId }, { password: newHashedPassword });
+
 }
 
