@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
-import { Conflict, NotFound, Unauthorized } from "http-errors";
+import { BadRequest, Conflict, NotFound, Unauthorized } from "http-errors";
 
 export const errorHandler = (
   err: any,
@@ -15,9 +15,9 @@ export const errorHandler = (
     });
   }
 
-  if (err instanceof NotFound) {
-    return res.status(404).json({
-      message: err.message || 'Resource not found',
+  if (err instanceof BadRequest) {
+    return res.status(400).json({
+      message: err.message || 'Bad request',
     });
   }
 
@@ -26,6 +26,13 @@ export const errorHandler = (
       message: err.message || 'Unauthorized',
     });
   }
+
+  if (err instanceof NotFound) {
+    return res.status(404).json({
+      message: err.message || 'Resource not found',
+    });
+  }
+
 
   if (err instanceof Conflict) {
     return res.status(409).json({

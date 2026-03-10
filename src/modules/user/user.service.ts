@@ -4,7 +4,7 @@ import { toPublicUser } from "./user.mapper";
 import { User } from "./user.entity";
 import { DeleteResult, UpdateResult } from "typeorm";
 import { PublicUserDto } from "./user.dto";
-import { Conflict, Unauthorized } from "http-errors";
+import { BadRequest, Conflict, Unauthorized } from "http-errors";
 import { FilteredResponse } from "../../common/models/filtered-response";
 import { ListFilterParams } from "../../common/models/list-filter-params";
 import { normalizeFilters } from "../../common/utils/normalize-filters";
@@ -127,12 +127,12 @@ export const findPetsByUserId = async (userId: number, filters: ListFilterParams
 export const updateUserPassword = async (userId: number, oldPassword: string, newPassword: string) => {
   const user = await findUserByIdInternal(userId);
   if (!user) {
-    throw new Unauthorized('Unauthorized');
+    throw new BadRequest('Invalid credentials');
   }
 
   const isPasswordOk = await bcrypt.compare(oldPassword, user.password);
   if (!isPasswordOk) {
-    throw new Unauthorized('Unauthorized');
+    throw new BadRequest('Invalid credentials');
   }
 
   const newHashedPassword = await bcrypt.hash(newPassword, 10);

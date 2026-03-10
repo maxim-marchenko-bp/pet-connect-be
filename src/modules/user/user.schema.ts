@@ -10,7 +10,7 @@ export const createUserSchema = z.object({
   password: z.string().min(6),
   dateOfBirth: z.coerce.date().optional(),
   isActive: z.boolean().default(true),
-  gender: z.enum(genderValues),
+  gender: z.enum(genderValues).optional(),
 });
 export const updateUserSchema = createUserSchema.partial();
 
