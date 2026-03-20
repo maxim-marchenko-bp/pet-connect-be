@@ -15,6 +15,6 @@ export class Pet extends BaseEntity {
   @JoinColumn({ name: 'pet_type_id' })
   type!: PetType;
 
-  @ManyToMany(() => User, user => user.pets)
+  @ManyToMany(() => User, user => user.pets, { onDelete: 'CASCADE' })
   users!: User[];
 }

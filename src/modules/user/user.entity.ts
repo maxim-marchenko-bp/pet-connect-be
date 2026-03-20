@@ -26,7 +26,7 @@ export class User extends BaseEntity {
   @Column({ type: 'enum', enum: Gender, default: Gender.MALE, })
   gender!: Gender;
 
-  @ManyToMany(() => Pet, pet => pet.users)
+  @ManyToMany(() => Pet, pet => pet.users, { onDelete: 'CASCADE' })
   @JoinTable({
     name: 'user_pets',
     joinColumn: { name: 'user_id', referencedColumnName: 'id' },
