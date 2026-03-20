@@ -12,7 +12,9 @@ export const createUserSchema = z.object({
   isActive: z.boolean().default(true),
   gender: z.enum(genderValues).optional(),
 });
-export const updateUserSchema = createUserSchema.partial();
+export const updateUserSchema = createUserSchema.partial().extend({
+  id: z.number()
+});
 
 export type CreateUserDto = z.infer<typeof createUserSchema>;
 export type UpdateUserDto = z.infer<typeof updateUserSchema>;
