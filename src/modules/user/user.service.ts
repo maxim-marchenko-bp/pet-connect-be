@@ -60,7 +60,7 @@ export const updateUser = async (id: number, dto: UpdateUserDto): Promise<Update
 };
 
 export const findUserByIdPublic = async (id: number): Promise<PublicUserDto | null> => {
-  const user = await userRepository.findOne({where: { id }, relations: ['pets']});
+  const user = await userRepository.findOneBy({ id });
   if (!user) {
     throw new Unauthorized('Unauthorized');
   }

@@ -93,4 +93,13 @@ export const findUsersByPetId = async (petId: number, filters: ListFilterParams)
   const [items, totalCount] = await extendedQueryBuilder.getManyAndCount();
 
   return { items, totalCount };
+};
+
+export const checkPetOwnerByUserId = async (petId: number, userId: number) => {
+  return await petRepository
+    .createQueryBuilder('pet')
+    .leftJoin('pet.users', 'user')
+    .where('pet.id = :petId', { petId })
+    .andWhere('user.id = :userId', { userId })
+    .getExists();
 }

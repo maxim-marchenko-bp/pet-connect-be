@@ -8,7 +8,8 @@ import {
   findUserProfiles,
   getAllUsersPublic,
   removePetIdsFromUser,
-  updateUser, updateUserPassword
+  updateUser,
+  updateUserPassword
 } from "./user.service";
 import { CreateUserDto } from "./user.schema";
 import { Request, Response } from 'express';

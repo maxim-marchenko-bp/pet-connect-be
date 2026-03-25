@@ -1,5 +1,14 @@
 import { Router } from "express";
-import { createNewPet, deletePetById, getPetById, getAllPets, updatePetInfo, getPetsList, getUsersByPetId } from "./pet.controller";
+import {
+  createNewPet,
+  deletePetById,
+  getPetById,
+  getAllPets,
+  updatePetInfo,
+  getPetsList,
+  getUsersByPetId,
+  checkOwnership
+} from "./pet.controller";
 import { validate } from "../../common/middleware/validate";
 import { updatePetSchema, createPetSchema } from "./pet.schema";
 
@@ -16,6 +25,8 @@ router.put('/:id', validate(updatePetSchema), updatePetInfo);
 router.get('/:id', getPetById);
 
 router.get('/:id/users/list', getUsersByPetId);
+
+router.post('/check-ownership', checkOwnership);
 
 router.delete('/:id', deletePetById);
 

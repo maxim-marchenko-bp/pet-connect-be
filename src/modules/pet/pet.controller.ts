@@ -1,4 +1,13 @@
-import { createPet, deletePet, findAllPets, findPetById, findPets, findUsersByPetId, updatePet } from "./pet.service";
+import {
+  checkPetOwnerByUserId,
+  createPet,
+  deletePet,
+  findAllPets,
+  findPetById,
+  findPets,
+  findUsersByPetId,
+  updatePet
+} from "./pet.service";
 import { Request, Response } from 'express';
 import { QueryFilterRequest } from "../../common/models/query-filter-request";
 
@@ -66,6 +75,16 @@ export const getUsersByPetId = async (req: QueryFilterRequest, res: Response) =>
   try {
     const pets = await findUsersByPetId(+id, filters);
     res.status(200).json(pets);
+  } catch (error) {
+    throw new Error((error as { message: string }).message);
+  }
+}
+
+export const checkOwnership = async (req: Request, res: Response) => {
+  try {
+    const { userId, petId } = req.body;
+    const result = await checkPetOwnerByUserId(+petId, +userId);
+    res.status(200).json(result);
   } catch (error) {
     throw new Error((error as { message: string }).message);
   }
