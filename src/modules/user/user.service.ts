@@ -17,7 +17,7 @@ export const saveUser = (dto: CreateUserDto): Promise<User> => {
   return userRepository.save(userDto);
 };
 
-export const addPetIdsToUser = async (userId: number, petIds: number[]): Promise<void> => {
+export const assignPetsIdsToUser = async (userId: number, petIds: number[]): Promise<void> => {
   const petsIds = await getPetsIdsByUserId(userId);
   await removePetIdsFromUser(userId, petsIds);
 

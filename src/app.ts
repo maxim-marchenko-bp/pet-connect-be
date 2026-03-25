@@ -13,6 +13,7 @@ import userRouter from "./modules/user/user.routes";
 import authRouter from "./modules/auth/auth.routes";
 import petRouter from "./modules/pet/pet.routes";
 import petTypeRouter from "./modules/pet-type/pet-type.routes";
+import genderRouter from "./modules/gender/gender.routes";
 import { authenticate } from "./common/middleware/auth";
 
 const allowedOrigins = [
@@ -41,6 +42,12 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
+// app.use((req, res, next) => {
+//   setTimeout(() => {
+//     next();
+//   }, 2000);
+// })
+
 // Auth
 app.use('/api/auth', authRouter);
 app.use('/api/auth', refreshTokenRoutes);
@@ -48,7 +55,8 @@ app.use('/api/auth', refreshTokenRoutes);
 // Data
 app.use('/api/users', [authenticate], userRouter);
 app.use('/api/pets', [authenticate], petRouter);
-app.use('/api/pet-types', [authenticate], petTypeRouter)
+app.use('/api/pet-types', [authenticate], petTypeRouter);
+app.use('/api/genders', [authenticate], genderRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello, World!');

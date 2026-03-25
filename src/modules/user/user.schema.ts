@@ -13,7 +13,7 @@ export const createUserSchema = z.object({
   gender: z.enum(genderValues).optional(),
 });
 export const updateUserSchema = createUserSchema.partial().extend({
-  id: z.number()
+  id: z.number().optional(),
 });
 
 export type CreateUserDto = z.infer<typeof createUserSchema>;

@@ -1,6 +1,6 @@
 import {
   addNewUser,
-  addPetIdsToUser,
+  assignPetsIdsToUser,
   deleteUserById,
   findPetsByUserId,
   findUserByIdPublic,
@@ -76,7 +76,7 @@ export const assignPetsToUser = async (req: AssignPetToUserRequest, res: Respons
   try {
     const { petIds } = req.body;
     const userId = +req.params.id;
-    await addPetIdsToUser(userId, petIds);
+    await assignPetsIdsToUser(userId, petIds);
     res.sendStatus(200);
   } catch (error) {
     throw new Error((error as { message: string }).message);
