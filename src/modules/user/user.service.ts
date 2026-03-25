@@ -28,6 +28,14 @@ export const assignPetsIdsToUser = async (userId: number, petIds: number[]): Pro
     .add(petIds);
 };
 
+export const addPetIdsToUser = async (userId: number, petIds: number[]) => {
+  return await userRepository
+    .createQueryBuilder()
+    .relation('pets')
+    .of(userId)
+    .add(petIds);
+};
+
 export const removePetIdsFromUser = async (userId: number, petIds: number[]): Promise<void> => {
   return await userRepository
     .createQueryBuilder()
@@ -52,7 +60,7 @@ export const updateUser = async (id: number, dto: UpdateUserDto): Promise<Update
 };
 
 export const findUserByIdPublic = async (id: number): Promise<PublicUserDto | null> => {
-  const user = await userRepository.findOneBy({ id });
+  const user = await userRepository.findOne({where: { id }, relations: ['pets']});
   if (!user) {
     throw new Unauthorized('Unauthorized');
   }

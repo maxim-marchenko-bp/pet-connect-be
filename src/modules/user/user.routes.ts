@@ -11,7 +11,7 @@ import {
   assignPetsToUser,
   getUserProfilesList,
   getPetsByUserId,
-  changeUserPassword,
+  changeUserPassword, addPetsToUser, removePetsFromUser,
 } from "./user.controller";
 
 const router = Router();
@@ -31,6 +31,10 @@ router.put('/:id', validate(updateUserSchema), updateUserInfo);
 router.get('/:id', getUserById);
 
 router.post('/:id/assign-pets', assignPetsToUser);
+
+router.post('/:id/add-pets', addPetsToUser);
+
+router.post('/:id/remove-pets', removePetsFromUser);
 
 router.get('/:id/pets/list', getPetsByUserId);
 

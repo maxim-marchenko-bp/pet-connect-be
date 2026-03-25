@@ -1,11 +1,11 @@
 import {
-  addNewUser,
+  addNewUser, addPetIdsToUser,
   assignPetsIdsToUser,
   deleteUserById,
   findPetsByUserId,
   findUserByIdPublic,
   findUserProfiles,
-  getAllUsersPublic,
+  getAllUsersPublic, removePetIdsFromUser,
   updateUser, updateUserPassword
 } from "./user.service";
 import { CreateUserDto } from "./user.schema";
@@ -77,6 +77,28 @@ export const assignPetsToUser = async (req: AssignPetToUserRequest, res: Respons
     const { petIds } = req.body;
     const userId = +req.params.id;
     await assignPetsIdsToUser(userId, petIds);
+    res.sendStatus(200);
+  } catch (error) {
+    throw new Error((error as { message: string }).message);
+  }
+}
+
+export const addPetsToUser = async (req: Request, res: Response) => {
+  try {
+    const { petIds } = req.body;
+    const userId = +req.params.id;
+    await addPetIdsToUser(userId, petIds);
+    res.sendStatus(200);
+  } catch (error) {
+    throw new Error((error as { message: string }).message);
+  }
+}
+
+export const removePetsFromUser = async (req: Request, res: Response) => {
+  try {
+    const { petIds } = req.body;
+    const userId = +req.params.id;
+    await removePetIdsFromUser(userId, petIds);
     res.sendStatus(200);
   } catch (error) {
     throw new Error((error as { message: string }).message);
