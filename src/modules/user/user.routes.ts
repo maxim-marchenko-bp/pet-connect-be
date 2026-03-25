@@ -11,7 +11,9 @@ import {
   assignPetsToUser,
   getUserProfilesList,
   getPetsByUserId,
-  changeUserPassword, addPetsToUser, removePetsFromUser,
+  changeUserPassword,
+  addPetsToUser,
+  removePetsFromUser,
 } from "./user.controller";
 
 const router = Router();

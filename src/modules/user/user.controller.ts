@@ -1,11 +1,13 @@
 import {
-  addNewUser, addPetIdsToUser,
+  addNewUser,
+  addPetIdsToUser,
   assignPetsIdsToUser,
   deleteUserById,
   findPetsByUserId,
   findUserByIdPublic,
   findUserProfiles,
-  getAllUsersPublic, removePetIdsFromUser,
+  getAllUsersPublic,
+  removePetIdsFromUser,
   updateUser, updateUserPassword
 } from "./user.service";
 import { CreateUserDto } from "./user.schema";
