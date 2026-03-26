@@ -102,7 +102,7 @@ export const removePetsFromUser = async (req: Request, res: Response) => {
     const { petIds } = req.body;
     const userId = +req.params.id;
     await removePetIdsFromUser(userId, petIds);
-    res.sendStatus(200);
+    res.status(200).json({message: 'OK'});
   } catch (error) {
     throw new Error((error as { message: string }).message);
   }
