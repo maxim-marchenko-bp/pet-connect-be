@@ -1,7 +1,7 @@
 import { petRepository } from "./pet.repository";
 import { CreatePetDto, PetDto, UpdatePetDto } from "./pet.schema";
 import { Pet } from "./pet.entity";
-import { DeleteResult, UpdateResult } from "typeorm";
+import { DeleteResult } from "typeorm";
 import { findPetTypeByCode } from "../pet-type/pet-type.service";
 import { NotFound } from "http-errors";
 import { ListFilterParams } from "../../common/models/list-filter-params";
@@ -62,7 +62,7 @@ export const createPet = async (dto: CreatePetDto): Promise<Pet> => {
   return await petRepository.save(newPet);
 };
 
-export const updatePet = async (id: number, dto: UpdatePetDto): Promise<UpdateResult> => {
+export const updatePet = async (id: number, dto: UpdatePetDto): Promise<Pet> => {
   const existingPet = await findPetById(+id);
   if (!existingPet) {
     throw new NotFound('Pet not found');
@@ -76,14 +76,15 @@ export const updatePet = async (id: number, dto: UpdatePetDto): Promise<UpdateRe
 
     const petDto = {
       ...dto,
+      id: existingPet.id,
       type,
     };
 
-    return petRepository.update({ id }, petDto);
+    return petRepository.save(petDto);
   }
 
   const { type, ...rest } = dto;
-  return petRepository.update({ id }, rest);
+  return petRepository.save({ rest, id: existingPet.id });
 };
 
 export const deletePet = async (id: number): Promise<DeleteResult> => {

@@ -12,4 +12,4 @@ export const updatePetSchema = createPetSchema.partial();
 
 export type CreatePetDto = z.infer<typeof createPetSchema>;
 export type UpdatePetDto = z.infer<typeof updatePetSchema>;
-export type PetDto = CreatePetDto & { canEdit?: boolean };
+export type PetDto = CreatePetDto & { canEdit?: boolean, id?: number };
