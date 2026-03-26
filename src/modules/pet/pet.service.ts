@@ -1,5 +1,5 @@
 import { petRepository } from "./pet.repository";
-import { CreatePetDto, UpdatePetDto } from "./pet.schema";
+import { CreatePetDto, PetDto, UpdatePetDto } from "./pet.schema";
 import { Pet } from "./pet.entity";
 import { DeleteResult, UpdateResult } from "typeorm";
 import { findPetTypeByCode } from "../pet-type/pet-type.service";
@@ -14,13 +14,30 @@ export const findAllPets = async (): Promise<Pet[]> => {
   return petRepository.find({ relations: ['type'] });
 };
 
-export const findPetById = async (id: number): Promise<Pet | null > => {
-  const pet = await petRepository
+export const findPetById = async (id: number, userId?: number): Promise<PetDto | null > => {
+  const qb = petRepository
     .createQueryBuilder('pet')
     .leftJoin('pet.type', 'type')
     .select(['pet', 'type.code', 'type.label'])
-    .where('pet.id = :id', { id })
-    .getOne();
+    .where('pet.id = :id', { id });
+
+  if (userId) {
+    qb
+      .addSelect(`
+        EXISTS
+        (
+          SELECT 1
+          FROM user_pets up
+          WHERE up.pet_id = pet.id
+          AND up.user_id = :userId
+        )
+      `,
+        'canEdit')
+      .setParameter('userId', userId)
+
+  }
+
+  const pet = await qb.getRawOne();
   if (!pet) {
     throw NotFound('Pet not found' );
   }

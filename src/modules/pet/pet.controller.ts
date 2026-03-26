@@ -32,7 +32,8 @@ export const getPetsList = async (req: QueryFilterRequest, res: Response) => {
 export const getPetById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const pet = await findPetById(+id);
+    const { id: userId } = req.user;
+    const pet = await findPetById(+id, userId);
     res.json(pet);
   } catch (error) {
     throw error;
