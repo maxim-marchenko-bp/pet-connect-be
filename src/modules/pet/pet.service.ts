@@ -84,7 +84,7 @@ export const updatePet = async (id: number, dto: UpdatePetDto): Promise<Pet> => 
   }
 
   const { type, ...rest } = dto;
-  return petRepository.save({ rest, id: existingPet.id });
+  return petRepository.save({ ...rest, id: existingPet.id });
 };
 
 export const deletePet = async (id: number): Promise<DeleteResult> => {
