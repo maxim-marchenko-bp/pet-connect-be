@@ -37,12 +37,17 @@ export const findPetById = async (id: number, userId?: number): Promise<PetDto |
 
   }
 
-  const pet = await qb.getRawOne();
+  const { entities, raw } = await qb.getRawAndEntities();
+  const pet = entities[0];
+  const canEdit = raw[0].canEdit;
   if (!pet) {
     throw NotFound('Pet not found' );
   }
 
-  return pet;
+  return {
+    ...pet,
+    canEdit,
+  } as unknown as PetDto;
 };
 
 export const createPet = async (dto: CreatePetDto): Promise<Pet> => {
