@@ -33,8 +33,7 @@ export const findPetById = async (id: number, userId?: number): Promise<PetDto |
         )
       `,
         'canEdit')
-      .setParameter('userId', userId)
-
+      .setParameter('userId', userId);
   }
 
   const { entities, raw } = await qb.getRawAndEntities();
