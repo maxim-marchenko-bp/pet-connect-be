@@ -9,6 +9,8 @@ import { FilteredResponse } from "../../common/models/filtered-response";
 import { normalizeFilters } from "../../common/utils/normalize-filters";
 import { listQueryBuilder } from "../../common/utils/list-query-builder";
 import { userRepository } from "../user/user.repository";
+import { PetListFilterParams } from "./pet.model";
+import { applyCustomFilters } from "../../common/utils/apply-custom-filters";
 
 export const findAllPets = async (): Promise<Pet[]> => {
   return petRepository.find({ relations: ['type'] });
@@ -91,14 +93,22 @@ export const deletePet = async (id: number): Promise<DeleteResult> => {
   return petRepository.delete({ id });
 };
 
-export const findPets = async (filters: ListFilterParams): Promise<FilteredResponse<Pet>> => {
+export const findPets = async (filters: PetListFilterParams): Promise<FilteredResponse<Pet>> => {
   const normalizedFilters = normalizeFilters(filters);
   const queryBuilder = petRepository
     .createQueryBuilder('pet')
     .leftJoin('pet.type', 'type')
     .select('pet')
     .addSelect(['type.code', 'type.label']);
+
   const extendedQueryBuilder = listQueryBuilder(queryBuilder, normalizedFilters, 'pet', ['name']);
+
+  const filterConfig = {
+    type: 'type.code',
+  };
+
+  applyCustomFilters(extendedQueryBuilder, filters, filterConfig);
+
   const [items, totalCount] = await extendedQueryBuilder.getManyAndCount();
 
   return { items, totalCount };
