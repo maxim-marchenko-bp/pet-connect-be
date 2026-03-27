@@ -97,6 +97,21 @@ export const addPetsToUser = async (req: Request, res: Response) => {
   }
 }
 
+export const joinPetById = async (req: Request, res: Response) => {
+  try {
+    const { code } = req.query;
+    const { id } = req.user
+    if (code) {
+      await addPetIdsToUser(id, [+code]);
+      res.sendStatus(200);
+    } else {
+      res.sendStatus(403);
+    }
+  } catch (error) {
+    throw new Error((error as { message: string }).message);
+  }
+}
+
 export const removePetsFromUser = async (req: Request, res: Response) => {
   try {
     const { petIds } = req.body;
