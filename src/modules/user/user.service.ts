@@ -9,8 +9,9 @@ import { FilteredResponse } from "../../common/models/filtered-response";
 import { ListFilterParams } from "../../common/models/list-filter-params";
 import { normalizeFilters } from "../../common/utils/normalize-filters";
 import { petRepository } from "../pet/pet.repository";
-import { listQueryBuilder } from "../../common/utils/list-query-builder";
+import { paginatedSearch } from "../../common/utils/paginated-search";
 import bcrypt from "bcrypt";
+import { applyCustomFilters } from "../../common/utils/apply-custom-filters";
 
 export const saveUser = (dto: CreateUserDto): Promise<User> => {
   const userDto = userRepository.create(dto);
@@ -111,7 +112,12 @@ export const addNewUser = async (dto: CreateUserDto) => {
 export const findUserProfiles = async (filters: ListFilterParams): Promise<FilteredResponse<User>> => {
   const normalizedFilters = normalizeFilters(filters);
   const queryBuilder = userRepository.createQueryBuilder('user');
-  const extendedQueryBuilder = listQueryBuilder(queryBuilder, normalizedFilters, 'user', ['name', 'lastname']);
+  const extendedQueryBuilder = paginatedSearch(queryBuilder, normalizedFilters, 'user', ['name', 'lastname']);
+  const filterConfig = {
+    gender: 'user.gender',
+  };
+
+  applyCustomFilters(extendedQueryBuilder, filters, filterConfig);
   const [items, totalCount] = await extendedQueryBuilder.getManyAndCount();
 
   return { items, totalCount };
@@ -126,7 +132,7 @@ export const findPetsByUserId = async (userId: number, filters: ListFilterParams
     .leftJoin('pet.type', 'type')
     .select(['pet.id', 'pet.name', 'pet.dateOfBirth', 'type.code', 'type.label'])
     .where('user.id = :userId', { userId });
-  const extendedQueryBuilder = listQueryBuilder(queryBuilder, normalizedFilters, 'pet', ['name']);
+  const extendedQueryBuilder = paginatedSearch(queryBuilder, normalizedFilters, 'pet', ['name']);
   const [items, totalCount] = await extendedQueryBuilder.getManyAndCount();
 
   return { items, totalCount };

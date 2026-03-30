@@ -1,7 +1,7 @@
-import { ObjectLiteral, SelectQueryBuilder } from "typeorm";
+import { Brackets, ObjectLiteral, SelectQueryBuilder } from "typeorm";
 import { FilterParamsResult } from "../models/list-filter-params";
 
-export const listQueryBuilder = <T extends ObjectLiteral>(
+export const paginatedSearch = <T extends ObjectLiteral>(
   queryBuilder: SelectQueryBuilder<T>,
   filters: FilterParamsResult,
   entityAlias: string,
@@ -20,15 +20,17 @@ export const listQueryBuilder = <T extends ObjectLiteral>(
   }
 
   if (searchTerm) {
-    searchableFields.forEach((searchableField, i) => {
-      const where = `${entityAlias}.${searchableField.toString()} ILIKE :searchTerm`;
-      const params = { searchTerm: `%${searchTerm}%` };
-      if (i === 0) {
-        queryBuilder.andWhere(where, params);
-      } else {
-        queryBuilder.orWhere(where, params);
-      }
-    });
+    queryBuilder.andWhere(new Brackets(qb => {
+      searchableFields.forEach((searchableField, i) => {
+        const where = `${entityAlias}.${searchableField.toString()} ILIKE :searchTerm`;
+        const params = { searchTerm: `%${searchTerm}%` };
+        if (i === 0) {
+          qb.andWhere(where, params);
+        } else {
+          qb.orWhere(where, params);
+        }
+      });
+    }));
   }
 
   return queryBuilder.skip(skip).take(take);

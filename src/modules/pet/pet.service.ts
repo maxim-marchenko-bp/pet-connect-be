@@ -7,7 +7,7 @@ import { NotFound } from "http-errors";
 import { ListFilterParams } from "../../common/models/list-filter-params";
 import { FilteredResponse } from "../../common/models/filtered-response";
 import { normalizeFilters } from "../../common/utils/normalize-filters";
-import { listQueryBuilder } from "../../common/utils/list-query-builder";
+import { paginatedSearch } from "../../common/utils/paginated-search";
 import { userRepository } from "../user/user.repository";
 import { PetListFilterParams } from "./pet.model";
 import { applyCustomFilters } from "../../common/utils/apply-custom-filters";
@@ -101,7 +101,7 @@ export const findPets = async (filters: PetListFilterParams): Promise<FilteredRe
     .select('pet')
     .addSelect(['type.code', 'type.label']);
 
-  const extendedQueryBuilder = listQueryBuilder(queryBuilder, normalizedFilters, 'pet', ['name']);
+  const extendedQueryBuilder = paginatedSearch(queryBuilder, normalizedFilters, 'pet', ['name']);
 
   const filterConfig = {
     type: 'type.code',
@@ -121,7 +121,7 @@ export const findUsersByPetId = async (petId: number, filters: ListFilterParams)
     .createQueryBuilder('user')
     .leftJoin('user.pets', 'pet')
     .where('pet.id = :petId', { petId });
-  const extendedQueryBuilder = listQueryBuilder(queryBuilder, normalizedFilters, 'user', ['name']);
+  const extendedQueryBuilder = paginatedSearch(queryBuilder, normalizedFilters, 'user', ['name']);
   const [items, totalCount] = await extendedQueryBuilder.getManyAndCount();
 
   return { items, totalCount };
