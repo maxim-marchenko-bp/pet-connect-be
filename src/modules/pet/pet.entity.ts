@@ -17,4 +17,8 @@ export class Pet extends BaseEntity {
 
   @ManyToMany(() => User, user => user.pets, { onDelete: 'CASCADE' })
   users!: User[];
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'modifiedById'})
+  modifiedBy!: User | null;
 }

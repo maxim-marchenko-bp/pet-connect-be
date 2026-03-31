@@ -20,7 +20,8 @@ export const findPetById = async (id: number, userId?: number): Promise<PetDto |
   const qb = petRepository
     .createQueryBuilder('pet')
     .leftJoin('pet.type', 'type')
-    .select(['pet', 'type.code', 'type.label'])
+    .leftJoin('pet.modifiedBy', 'md')
+    .select(['pet', 'type.code', 'type.label', 'md.id', 'md.name', 'md.lastname', 'md.email'])
     .where('pet.id = :id', { id });
 
   if (userId) {
@@ -51,7 +52,7 @@ export const findPetById = async (id: number, userId?: number): Promise<PetDto |
   } as unknown as PetDto;
 };
 
-export const createPet = async (dto: CreatePetDto): Promise<Pet> => {
+export const createPet = async (dto: CreatePetDto, userId: number | undefined = undefined): Promise<Pet> => {
   const type = await findPetTypeByCode(dto.type);
   if (!type) {
     throw new Error(`Pet type with code ${dto.type} not found`);
@@ -59,12 +60,13 @@ export const createPet = async (dto: CreatePetDto): Promise<Pet> => {
   const petDto = {
     ...dto,
     type,
+    modifiedBy: { id: userId },
   };
   const newPet = petRepository.create(petDto);
   return await petRepository.save(newPet);
 };
 
-export const updatePet = async (id: number, dto: UpdatePetDto): Promise<Pet> => {
+export const updatePet = async (id: number, dto: UpdatePetDto, userId: number | undefined = undefined): Promise<Pet> => {
   const existingPet = await findPetById(+id);
   if (!existingPet) {
     throw new NotFound('Pet not found');
@@ -80,13 +82,14 @@ export const updatePet = async (id: number, dto: UpdatePetDto): Promise<Pet> => 
       ...dto,
       id: existingPet.id,
       type,
+      modifiedBy: { id: userId },
     };
 
     return petRepository.save(petDto);
   }
 
   const { type, ...rest } = dto;
-  return petRepository.save({ ...rest, id: existingPet.id });
+  return petRepository.save({ ...rest, id: existingPet.id, modifiedBy: { id: userId } });
 };
 
 export const deletePet = async (id: number): Promise<DeleteResult> => {

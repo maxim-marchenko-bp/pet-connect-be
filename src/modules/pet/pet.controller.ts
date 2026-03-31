@@ -42,7 +42,7 @@ export const getPetById = async (req: Request, res: Response) => {
 
 export const createNewPet = async (req: Request, res: Response) => {
   try {
-    const savedPet = await createPet(req.body);
+    const savedPet = await createPet(req.body, req.user.id);
     res.status(201).json(savedPet);
   } catch (error) {
     throw new Error('Unable to create pet');
@@ -52,7 +52,7 @@ export const createNewPet = async (req: Request, res: Response) => {
 export const updatePetInfo = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const updatedPet = await updatePet(+id, req.body);
+    const updatedPet = await updatePet(+id, req.body, req.user.id);
     return res.status(200).json(updatedPet);
   } catch (error) {
     throw error;

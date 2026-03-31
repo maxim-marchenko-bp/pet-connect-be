@@ -6,6 +6,7 @@ export const createPetSchema = z.object({
   name: z.string().min(1),
   type: z.string().min(1),
   dateOfBirth: z.coerce.date().optional(),
+  modifiedById: z.number().optional(),
   users: z.array(updateUserSchema).optional(),
 });
 export const updatePetSchema = createPetSchema.partial();
