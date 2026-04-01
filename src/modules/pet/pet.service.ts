@@ -108,6 +108,7 @@ export const findPets = async (filters: PetListFilterParams): Promise<FilteredRe
 
   const filterConfig = {
     type: 'type.code',
+    dateOfBirth: 'pet.dateOfBirth',
   };
 
   applyCustomFilters(extendedQueryBuilder, filters, filterConfig);

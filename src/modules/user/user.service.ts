@@ -115,8 +115,10 @@ export const findUserProfiles = async (filters: ListFilterParams): Promise<Filte
   const extendedQueryBuilder = paginatedSearch(queryBuilder, normalizedFilters, 'user', ['name', 'lastname']);
   const filterConfig = {
     gender: 'user.gender',
+    dateOfBirth: 'user.dateOfBirth',
   };
 
+  console.log(filters);
   applyCustomFilters(extendedQueryBuilder, filters, filterConfig);
   const [items, totalCount] = await extendedQueryBuilder.getManyAndCount();
 
