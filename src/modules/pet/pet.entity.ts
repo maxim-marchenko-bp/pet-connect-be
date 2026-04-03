@@ -1,7 +1,8 @@
-import { Column, Entity, JoinColumn, ManyToMany, ManyToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany } from "typeorm";
 import { BaseEntity } from "../../common/entities/base.entity";
 import { User } from "../user/user.entity";
 import { PetType } from "../pet-type/pet-type.entity";
+import { PetInvite } from "../pet-invite/pet-invite.entity";
 
 @Entity()
 export class Pet extends BaseEntity {
@@ -21,4 +22,7 @@ export class Pet extends BaseEntity {
   @ManyToOne(() => User)
   @JoinColumn({ name: 'modifiedById'})
   modifiedBy!: User | null;
+
+  @OneToMany(() => PetInvite, petInvite => petInvite.pet)
+  invites!: PetInvite[];
 }

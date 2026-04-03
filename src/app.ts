@@ -5,7 +5,9 @@ import cookieParser from 'cookie-parser';
 
 // Common
 import { AppDataSource } from "./data-source";
+import { PORT } from "./common/constants/port";
 import { errorHandler } from "./common/middleware/error-handler";
+import { authenticate } from "./common/middleware/auth";
 
 // Routes
 import refreshTokenRoutes from "./modules/refresh-token/refresh-token.routes";
@@ -14,7 +16,7 @@ import authRouter from "./modules/auth/auth.routes";
 import petRouter from "./modules/pet/pet.routes";
 import petTypeRouter from "./modules/pet-type/pet-type.routes";
 import genderRouter from "./modules/gender/gender.routes";
-import { authenticate } from "./common/middleware/auth";
+import petInviteRouter from "./modules/pet-invite/pet-invite.routes";
 
 const allowedOrigins = [
   "http://localhost:3001",
@@ -22,7 +24,6 @@ const allowedOrigins = [
 ];
 
 dotenv.config();
-const PORT = process.env.PORT || 4000;
 const app = express();
 
 AppDataSource.initialize()
@@ -57,6 +58,7 @@ app.use('/api/users', [authenticate], userRouter);
 app.use('/api/pets', [authenticate], petRouter);
 app.use('/api/pet-types', [authenticate], petTypeRouter);
 app.use('/api/genders', [authenticate], genderRouter);
+app.use('/api/pet-invite', [authenticate], petInviteRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello, World!');
