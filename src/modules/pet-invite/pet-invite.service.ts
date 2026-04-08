@@ -23,11 +23,11 @@ export const getPetInviteByToken = async (token: string) => {
   return petInviteRepository
     .createQueryBuilder('pi')
     .leftJoin('pi.pet', 'pet')
-    .select('pi')
-    .addSelect(['pet.id', 'pet.name'])
+    .leftJoin('pet.type', 'type')
+    .select(['pi.id', 'pi.used', 'pet.id', 'pet.name', 'pet.dateOfBirth', 'type.code', 'type.label'])
     .where('pi.tokenHash =:token', { token: hashToken(token) })
     .getOne();
-}
+};
 
 export const invitePetToUserByToken = async (userId: number, invitationToken: string) => {
   const petInvite = await petInviteRepository
