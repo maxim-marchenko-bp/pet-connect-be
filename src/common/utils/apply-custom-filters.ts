@@ -1,16 +1,43 @@
 import { ObjectLiteral, SelectQueryBuilder } from "typeorm";
 
-export type FilterOperator = 'eq' | 'neq' | 'in' | 'notIn' | 'like' | 'ilike' | 'gt' | 'gte' | 'lt' | 'lte' | 'isNull' | 'isNotNull';
+export type FilterOperator =
+  | 'eq'
+  | 'neq'
+  | 'in'
+  | 'notIn'
+  | 'like'
+  | 'ilike'
+  | 'gt'
+  | 'gte'
+  | 'lt'
+  | 'lte'
+  | 'isNull'
+  | 'isNotNull';
 
 export interface FilterConfig<T = any> {
-  field: string; // The database field path (e.g., 'type.code', 'pet.name')
-  operator?: FilterOperator; // Default: 'eq'
-  paramName?: string; // The parameter name to use in the query (optional, defaults to filter key)
-  type?: 'string' | 'number' | 'boolean' | 'date'; // Optional type hint for value parsing
+  field: string;
+  operator?: FilterOperator;
+  paramName?: string;
+  type?: 'string' | 'number' | 'boolean' | 'date';
 }
 
 export type FilterConfigMap<T = any> = {
-  [key: string]: FilterConfig<T> | string; // String is shorthand for { field: string, operator: 'eq' }
+  [key: string]: FilterConfig<T> | string;
+};
+
+const parseValue = (value: any, type?: string) => {
+  if (value === undefined || value === null || value === '') return null;
+
+  switch (type) {
+    case 'number': {
+      const num = Number(value);
+      return isNaN(num) ? null : num;
+    }
+    case 'boolean':
+      return value === true || value === 'true';
+    default:
+      return value;
+  }
 };
 
 /**
@@ -19,7 +46,7 @@ export type FilterConfigMap<T = any> = {
  * @param filters - The filter parameters object
  * @param filterConfig - Configuration mapping filter keys to database fields and operators
  * @returns The extended query builder with filters applied
- * 
+ *
  * @example
  * const filterConfig = {
  *   type: 'type.code', // Shorthand for { field: 'type.code', operator: 'eq' }
@@ -34,92 +61,78 @@ export const applyCustomFilters = <T extends ObjectLiteral>(
   filterConfig: FilterConfigMap<T>
 ): SelectQueryBuilder<T> => {
   Object.entries(filterConfig).forEach(([filterKey, config]) => {
-    const filterValue = filters[filterKey];
+    const rawValue = filters[filterKey];
 
-    // Skip if filter value is undefined, null, or empty string
-    if (filterValue === undefined || filterValue === null || filterValue === '') {
-      return;
-    }
+    if (rawValue === undefined || rawValue === null || rawValue === '') return;
 
-    // Normalize config: if it's a string, convert to full config object
-    const normalizedConfig: FilterConfig = typeof config === 'string'
-      ? { field: config, operator: 'eq', type: 'string' }
-      : { operator: 'eq', ...config };
+    const normalizedConfig: FilterConfig =
+      typeof config === 'string'
+        ? { field: config, operator: 'eq', type: 'string' }
+        : { operator: 'eq', ...config };
 
     const { field, operator, paramName, type } = normalizedConfig;
-    const isDateType = type === 'date';
     const param = paramName || filterKey;
 
-    // Build the where clause based on operator
+    const parsedValue = parseValue(rawValue, type);
+    if (parsedValue === null && operator !== 'isNull' && operator !== 'isNotNull') return;
+
     switch (operator) {
       case 'eq':
-        queryBuilder.andWhere(`${field} = :${param}`, { [param]: filterValue });
+        queryBuilder.andWhere(`${field} = :${param}`, { [param]: parsedValue });
         break;
-      
+
       case 'neq':
-        queryBuilder.andWhere(`${field} != :${param}`, { [param]: filterValue });
+        queryBuilder.andWhere(`${field} != :${param}`, { [param]: parsedValue });
         break;
-      
+
       case 'in':
-        if (Array.isArray(filterValue) && filterValue.length > 0) {
-          queryBuilder.andWhere(`${field} IN (:...${param})`, { [param]: filterValue });
+        if (Array.isArray(rawValue) && rawValue.length > 0) {
+          queryBuilder.andWhere(`${field} IN (:...${param})`, { [param]: rawValue });
         }
         break;
-      
+
       case 'notIn':
-        if (Array.isArray(filterValue) && filterValue.length > 0) {
-          queryBuilder.andWhere(`${field} NOT IN (:...${param})`, { [param]: filterValue });
+        if (Array.isArray(rawValue) && rawValue.length > 0) {
+          queryBuilder.andWhere(`${field} NOT IN (:...${param})`, { [param]: rawValue });
         }
         break;
-      
+
       case 'like':
-        queryBuilder.andWhere(`${field} LIKE :${param}`, { [param]: `%${filterValue}%` });
+        queryBuilder.andWhere(`${field} LIKE :${param}`, { [param]: `%${rawValue}%` });
         break;
-      
+
       case 'ilike':
-        queryBuilder.andWhere(`${field} ILIKE :${param}`, { [param]: `%${filterValue}%` });
+        queryBuilder.andWhere(`${field} ILIKE :${param}`, { [param]: `%${rawValue}%` });
         break;
-      
+
       case 'gt':
-        const gtValue = isDateType ? filterValue : Number(filterValue);
-        if ((!isDateType && !isNaN(gtValue)) || (isDateType && gtValue)) {
-          queryBuilder.andWhere(`${field} > :${param}`, { [param]: gtValue });
-        }
+        queryBuilder.andWhere(`${field} > :${param}`, { [param]: parsedValue });
         break;
-      
+
       case 'gte':
-        const gteValue = isDateType ? filterValue : Number(filterValue);
-        if ((!isDateType && !isNaN(gteValue)) || (isDateType && gteValue)) {
-          queryBuilder.andWhere(`${field} >= :${param}`, { [param]: gteValue });
-        }
+        queryBuilder.andWhere(`${field} >= :${param}`, { [param]: parsedValue });
         break;
-      
+
       case 'lt':
-        const ltValue = isDateType ? filterValue : Number(filterValue);
-        if ((!isDateType && !isNaN(ltValue)) || (isDateType && ltValue)) {
-          queryBuilder.andWhere(`${field} < :${param}`, { [param]: ltValue });
-        }
+        queryBuilder.andWhere(`${field} < :${param}`, { [param]: parsedValue });
         break;
-      
+
       case 'lte':
-        const lteValue = isDateType ? filterValue : Number(filterValue);
-        if ((!isDateType && !isNaN(lteValue)) || (isDateType && lteValue)) {
-          queryBuilder.andWhere(`${field} <= :${param}`, { [param]: lteValue });
-        }
+        queryBuilder.andWhere(`${field} <= :${param}`, { [param]: parsedValue });
         break;
-      
+
       case 'isNull':
-        if (filterValue === true || filterValue === 'true') {
+        if (rawValue === true || rawValue === 'true') {
           queryBuilder.andWhere(`${field} IS NULL`);
         }
         break;
-      
+
       case 'isNotNull':
-        if (filterValue === true || filterValue === 'true') {
+        if (rawValue === true || rawValue === 'true') {
           queryBuilder.andWhere(`${field} IS NOT NULL`);
         }
         break;
-      
+
       default:
         console.warn(`Unknown filter operator: ${operator}`);
     }
