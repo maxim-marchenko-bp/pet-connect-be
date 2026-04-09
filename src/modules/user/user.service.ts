@@ -136,7 +136,16 @@ export const findPetsByUserId = async (userId: number, filters: ListFilterParams
   const extendedQueryBuilder = paginatedSearch(queryBuilder, normalizedFilters, 'pet', ['name']);
   const filterConfig = {
     type: 'type.code',
-    dateOfBirth: 'pet.dateOfBirth',
+    dateOfBirthFrom: {
+      field: 'pet.dateOfBirth',
+      operator: 'gte',
+      type: 'date',
+    },
+    dateOfBirthTo: {
+      field: 'pet.dateOfBirth',
+      operator: 'lte',
+      type: 'date',
+    },
   } as FilterConfigMap;
 
   applyCustomFilters(extendedQueryBuilder, filters, filterConfig);

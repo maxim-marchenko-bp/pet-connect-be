@@ -10,7 +10,7 @@ import { normalizeFilters } from "../../common/utils/normalize-filters";
 import { paginatedSearch } from "../../common/utils/paginated-search";
 import { userRepository } from "../user/user.repository";
 import { PetListFilterParams } from "./pet.model";
-import { applyCustomFilters } from "../../common/utils/apply-custom-filters";
+import { applyCustomFilters, FilterConfigMap } from "../../common/utils/apply-custom-filters";
 
 export const findAllPets = async (): Promise<Pet[]> => {
   return petRepository.find({ relations: ['type'] });
@@ -108,8 +108,17 @@ export const findPets = async (filters: PetListFilterParams): Promise<FilteredRe
 
   const filterConfig = {
     type: 'type.code',
-    dateOfBirth: 'pet.dateOfBirth',
-  };
+    dateOfBirthFrom: {
+      field: 'pet.dateOfBirth',
+      operator: 'gte',
+      type: 'date',
+    },
+    dateOfBirthTo: {
+      field: 'pet.dateOfBirth',
+      operator: 'lte',
+      type: 'date',
+    },
+  } as FilterConfigMap;
 
   applyCustomFilters(extendedQueryBuilder, filters, filterConfig);
 
