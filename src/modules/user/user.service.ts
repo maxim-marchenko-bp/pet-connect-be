@@ -113,9 +113,18 @@ export const findUserProfiles = async (filters: ListFilterParams): Promise<Filte
   const normalizedFilters = normalizeFilters(filters);
   const queryBuilder = userRepository.createQueryBuilder('user');
   const extendedQueryBuilder = paginatedSearch(queryBuilder, normalizedFilters, 'user', ['name', 'lastname']);
-  const filterConfig = {
+  const filterConfig: FilterConfigMap = {
     gender: 'user.gender',
-    dateOfBirth: 'user.dateOfBirth',
+    dateOfBirthFrom: {
+      field: 'user.dateOfBirth',
+      type: 'date',
+      operator: 'gte',
+    },
+    dateOfBirthTo: {
+      field: 'user.dateOfBirth',
+      type: 'date',
+      operator: 'lte',
+    },
   };
 
   applyCustomFilters(extendedQueryBuilder, filters, filterConfig);
@@ -134,7 +143,7 @@ export const findPetsByUserId = async (userId: number, filters: ListFilterParams
     .select(['pet.id', 'pet.name', 'pet.dateOfBirth', 'type.code', 'type.label'])
     .where('user.id = :userId', { userId });
   const extendedQueryBuilder = paginatedSearch(queryBuilder, normalizedFilters, 'pet', ['name']);
-  const filterConfig = {
+  const filterConfig: FilterConfigMap = {
     type: 'type.code',
     dateOfBirthFrom: {
       field: 'pet.dateOfBirth',
@@ -146,7 +155,7 @@ export const findPetsByUserId = async (userId: number, filters: ListFilterParams
       operator: 'lte',
       type: 'date',
     },
-  } as FilterConfigMap;
+  };
 
   applyCustomFilters(extendedQueryBuilder, filters, filterConfig);
   const [items, totalCount] = await extendedQueryBuilder.getManyAndCount();
