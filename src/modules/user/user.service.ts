@@ -11,7 +11,7 @@ import { normalizeFilters } from "../../common/utils/normalize-filters";
 import { petRepository } from "../pet/pet.repository";
 import { paginatedSearch } from "../../common/utils/paginated-search";
 import bcrypt from "bcrypt";
-import { applyCustomFilters } from "../../common/utils/apply-custom-filters";
+import { applyCustomFilters, FilterConfigMap } from "../../common/utils/apply-custom-filters";
 
 export const saveUser = (dto: CreateUserDto): Promise<User> => {
   const userDto = userRepository.create(dto);
@@ -129,11 +129,17 @@ export const findPetsByUserId = async (userId: number, filters: ListFilterParams
 
   const queryBuilder = petRepository
     .createQueryBuilder('pet')
-    .leftJoin('pet.users', 'user')
+    .innerJoin('pet.users', 'user')
     .leftJoin('pet.type', 'type')
     .select(['pet.id', 'pet.name', 'pet.dateOfBirth', 'type.code', 'type.label'])
     .where('user.id = :userId', { userId });
   const extendedQueryBuilder = paginatedSearch(queryBuilder, normalizedFilters, 'pet', ['name']);
+  const filterConfig = {
+    type: 'type.code',
+    dateOfBirth: 'pet.dateOfBirth',
+  } as FilterConfigMap;
+
+  applyCustomFilters(extendedQueryBuilder, filters, filterConfig);
   const [items, totalCount] = await extendedQueryBuilder.getManyAndCount();
 
   return { items, totalCount };

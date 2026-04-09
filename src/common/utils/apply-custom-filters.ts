@@ -6,6 +6,7 @@ export interface FilterConfig<T = any> {
   field: string; // The database field path (e.g., 'type.code', 'pet.name')
   operator?: FilterOperator; // Default: 'eq'
   paramName?: string; // The parameter name to use in the query (optional, defaults to filter key)
+  type?: 'string' | 'number' | 'boolean' | 'date'; // Optional type hint for value parsing
 }
 
 export type FilterConfigMap<T = any> = {
@@ -42,10 +43,11 @@ export const applyCustomFilters = <T extends ObjectLiteral>(
 
     // Normalize config: if it's a string, convert to full config object
     const normalizedConfig: FilterConfig = typeof config === 'string'
-      ? { field: config, operator: 'eq' }
+      ? { field: config, operator: 'eq', type: 'string' }
       : { operator: 'eq', ...config };
 
-    const { field, operator, paramName } = normalizedConfig;
+    const { field, operator, paramName, type } = normalizedConfig;
+    const isDateType = type === 'date';
     const param = paramName || filterKey;
 
     // Build the where clause based on operator
@@ -79,29 +81,29 @@ export const applyCustomFilters = <T extends ObjectLiteral>(
         break;
       
       case 'gt':
-        const gtValue = Number(filterValue);
-        if (!isNaN(gtValue)) {
+        const gtValue = isDateType ? filterValue : Number(filterValue);
+        if ((!isDateType && !isNaN(gtValue)) || (isDateType && gtValue)) {
           queryBuilder.andWhere(`${field} > :${param}`, { [param]: gtValue });
         }
         break;
       
       case 'gte':
-        const gteValue = Number(filterValue);
-        if (!isNaN(gteValue)) {
+        const gteValue = isDateType ? filterValue : Number(filterValue);
+        if ((!isDateType && !isNaN(gteValue)) || (isDateType && gteValue)) {
           queryBuilder.andWhere(`${field} >= :${param}`, { [param]: gteValue });
         }
         break;
       
       case 'lt':
-        const ltValue = Number(filterValue);
-        if (!isNaN(ltValue)) {
+        const ltValue = isDateType ? filterValue : Number(filterValue);
+        if ((!isDateType && !isNaN(ltValue)) || (isDateType && ltValue)) {
           queryBuilder.andWhere(`${field} < :${param}`, { [param]: ltValue });
         }
         break;
       
       case 'lte':
-        const lteValue = Number(filterValue);
-        if (!isNaN(lteValue)) {
+        const lteValue = isDateType ? filterValue : Number(filterValue);
+        if ((!isDateType && !isNaN(lteValue)) || (isDateType && lteValue)) {
           queryBuilder.andWhere(`${field} <= :${param}`, { [param]: lteValue });
         }
         break;
